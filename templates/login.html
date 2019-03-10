@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <nav>
+    <ul>
+      <li><a href="/auth/login?next={{ url_escape(request.uri) }}">Connexion</a></li>
+    </ul>
+  </nav>
+{% end %}
+
+{% block body %}
+
+  <div class="body_login"></div>
+  <div class="grad_login"></div>
+  <div class="header_login">
+    <div>Open<span>Pluie</span></div>
+  </div>
+  <br>
+  <div class="login">
+    {% if error %}
+      <p>
+        <span class="login_error">Error: {{ error }}</span>
+      </p>
+    {% end %}
+    <form action="/auth/login" method="POST">
+      {% module xsrf_form_html() %}
+      <input type="text" name="username" id="username" placeholder="Identifiant"><br/>
+      <input type="password" name="password" id="password" placeholder="Mot de passe"><br/>
+      <input type="submit" value="Connexion" />
+    </form>
+  </div>
+
+
+
+{% end %}
+
+

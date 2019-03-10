@@ -1,0 +1,53 @@
+<!--Page d'accueil pour utilisateur normal-->
+
+{% extends "base.html" %}
+
+{% block nav %}
+<nav id=nav_user>
+  <ul class="nav">
+    {% if admin %}
+    <li><a href="/auth/create?next={{ url_escape(request.uri) }}">Créer utilisateur</a></li>
+    {% end %}
+    <li><a href="/">Pilotage</a></li>
+    <li><a href="/">Webcam</a></li>
+    <li><a href="/">Statistiques </a></li>
+  </ul>
+</nav>
+{% end %}
+
+{% block body %}
+
+  <div class="pilotage">
+    <label for="slider1" class="switch">
+      {% if gpio_state[0] %}
+        <input type="checkbox" id="slider1" checked>
+      {% else %}
+        <input type="checkbox" id="slider1" unchecked>
+      {% end %}
+      <span class="slider round"></span>
+    </label>
+    <h2>arrosage n°1</h2>
+  </div>
+
+  <div class="pilotage">
+    <label for="slider2" class="switch">
+      {% if gpio_state[1] %}
+        <input type="checkbox" id="slider2" checked>
+      {% else %}
+        <input type="checkbox" id="slider2" unchecked>
+      {% end %}
+      <span class="slider round"></span>
+    </label>
+    <h2>ampoule</h2>
+  </div>
+
+  Websocket status:
+  <br>
+  <div id="ws-status"> Waiting... </div>
+
+  {% end %}
+
+
+
+
+

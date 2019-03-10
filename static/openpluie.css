@@ -1,0 +1,362 @@
+/*Feuille de style pour Open Pluie*/
+
+/*Nouvelle police (lato) pour tout le site*/
+@font-face {
+    font-family: 'Lato';
+    src: url('./lato/Lato-Light.ttf');
+}
+@font-face {
+    font-family: 'LatoBlack';
+    src: url('./lato/Lato-Black.ttf');
+}
+@font-face {
+    font-family: 'alpha';
+    src: url('./alpha/alpha_echo.ttf');
+}
+
+/*Background image*/
+html {
+  background: url(images/bg.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+/*Tout le site en lato par défault*/
+#body_page
+{
+  font-family: 'Lato', 'Arial', 'sans-serif';
+  width: 800px;
+  margin: auto;
+}
+
+/*Erreurs d'authentification*/
+.auth_error
+{
+  font-family: 'LatoBlack';
+  color: red;
+}
+
+.login_error
+{
+  font-family: 'LatoBlack';
+  color: black;
+}
+
+/*style des liens*/
+a
+{
+  text-decoration: none;
+  color: black;
+}
+
+
+/*bannière de fond header et logo*/
+header
+{
+  width: 800px;
+  height: 200px;
+  position: relative;
+  border-radius: 5px;
+  background: url('images/fond.jpg') no-repeat;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: absolute;
+}
+
+header h1
+{
+  font-family: 'alpha';
+  font-size: 50px;
+}
+
+#titre_principal
+{
+  position: absolute;
+  top : 10px;
+  right : 10px;
+}
+
+
+#logo
+{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+#logo img
+{
+  margin-left: 20px;
+  width: 100px;
+  height: 100px;
+}
+
+#nav_user
+{
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 500px;
+  font-family: "LatoBlack", "Arial black";
+  font-size: 20px;
+}
+
+#nav_admin
+{
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 600px;
+  font-family: "LatoBlack", "Arial black";
+  font-size: 20px;
+}
+
+.nav
+{
+  list-style: none;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: : baseline;
+}
+
+nav a:hover
+{
+  opacity: 0.5;
+}
+
+
+/*footer and logout*/
+footer
+{
+  width:800px;
+  position:relative;
+}
+
+#logout
+{
+  font: bold 20px LatoBlack;
+  text-decoration: none;
+  background-color: #00AA57;
+  color: black;
+  position: absolute;
+  border-radius: 5px;
+  top:10px;
+  right:10px;
+  padding: 2px 6px;
+  border-top: 1px solid #CCCCCC;
+  border-right: 1px solid #333333;
+  border-bottom: 1px solid #333333;
+  border-left: 1px solid #CCCCCC;
+}
+
+#logout:hover
+{
+  opacity: 0.5;
+}
+
+/*Formulaire de login*/
+@import url(https://fonts.googleapis.com/css?family=Exo:100,200,400);
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:700,400,300);
+
+.body_login{
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -40px;
+  bottom: -40px;
+  width: auto;
+  height: auto;
+  background-image: url("images/login.jpg");
+  background-size: cover;
+  -webkit-filter: blur(5px);
+  z-index: 0;
+}
+
+.grad_login{
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -40px;
+  bottom: -40px;
+  width: auto;
+  height: auto;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.65))); /* Chrome,Safari4+ */
+  z-index: 1;
+  opacity: 0.7;
+}
+
+.header_login{
+  position: absolute;
+  top: calc(50% - 35px);
+  left: calc(50% - 255px);
+  z-index: 2;
+}
+
+.header_login div{
+  float: left;
+  color: #fff;
+  font-family: 'Exo', sans-serif;
+  font-size: 35px;
+  font-weight: 200;
+}
+
+.header_login div span{
+  color: #5379fa !important;
+}
+
+.login{
+  position: absolute;
+  top: calc(50% - 75px);
+  left: calc(50% - 50px);
+  height: 150px;
+  width: 350px;
+  padding: 10px;
+  z-index: 2;
+}
+
+.login input[type=text]{
+  width: 250px;
+  height: 30px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 2px;
+  color: #fff;
+  font-family: 'Exo', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 4px;
+}
+
+.login input[type=password]{
+  width: 250px;
+  height: 30px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 2px;
+  color: #fff;
+  font-family: 'Exo', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 4px;
+  margin-top: 10px;
+}
+
+.login input[type=submit]{
+  width: 260px;
+  height: 35px;
+  background: #fff;
+  border: 1px solid #fff;
+  cursor: pointer;
+  border-radius: 2px;
+  color: #a18d6c;
+  font-family: 'Exo', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 6px;
+  margin-top: 10px;
+}
+
+.login input[type=submit]:hover{
+  opacity: 0.8;
+}
+
+.login input[type=submit]:active{
+  opacity: 0.6;
+}
+
+.login input[type=text]:focus{
+  outline: none;
+  border: 1px solid rgba(255,255,255,0.9);
+}
+
+.login input[type=password]:focus{
+  outline: none;
+  border: 1px solid rgba(255,255,255,0.9);
+}
+
+.login input[type=submit]:focus{
+  outline: none;
+}
+
+::-webkit-input-placeholder{
+   color: rgba(255,255,255,0.6);
+}
+
+::-moz-input-placeholder{
+   color: rgba(255,255,255,0.6);
+}
+
+/* Pilotage de la RPI */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 100px;
+  height: 40px;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 32px;
+  width: 32px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #00AA57;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(60px);
+  -ms-transform: translateX(60px);
+  transform: translateX(60px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 40px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.pilotage
+{
+  display:flex;
+  width: 50%;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.pilotage h2
+{
+  margin-left: 20px;
+}

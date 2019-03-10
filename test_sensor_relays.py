@@ -4,6 +4,7 @@
 """Test."""
 
 
+import argparse
 import json
 
 import RPi.GPIO as GPIO
@@ -12,13 +13,26 @@ from relay.relay import Relay
 from sensor.ultrasonic import UltrasonicSensor
 
 
+def parse_args():
+    """Command line parser"""
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--pins", type=str, default="./config/pins.json",
+            help="Path to the pin config file (default: './config/pins.json')")
+
+    return parser.parse_args()
+
+
 def main():
     
+    # Parse command line
+    args = parse_args()
+
     # set pin mode
     GPIO.setmode(GPIO.BCM)
 
     # Load pin info
-    with open("pins.json", "r") as f:
+    with open(args.pins, "r") as f:
         pins = json.load(f)
     
     # Create ultrasonic sensor
@@ -27,7 +41,13 @@ def main():
                               temperature=20)
     
     # Create relays
-    relays = [Relay(int(p)) for p in pins["relay"]]
+    relays = {}
+    for id, pin in pins["relay"].items():
+        if pin is None:
+            print("Relay {} is not available (according to 'pins.json')".format(id))
+            relays[int(id)] = None
+            continue
+        relays[int(id)] = Relay(pin)
 
     while True:
         
@@ -50,9 +70,15 @@ def main():
             print("Invalid input: {}".format(i))
             continue
         
-        r = relays[i - 1]
+        r = relays[i]
+        if r is None:
+            print("Relay {} is unavailable".format(i))
+            continue
+
         # Reverse relay state
         r.reverse()
+
+
 if __name__ == "__main__":
     
     try:

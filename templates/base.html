@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>{{ escape(handler.settings["page_title"]) }}</title>
+    <link rel="stylesheet" href="{{ static_url('openpluie.css') }}" type="text/css">
+    {% block head %}{% end %}
+  </head>
+
+  <body>
+    <div id="body_page">
+
+      <header>
+        <div id="titre_principal">
+          <div id="logo">
+            <h1><a href="/">Open Pluie</a></h1>
+            <img src="{{ static_url('images/logo.png') }}" alt="Logo openpluie" />
+          </div>
+        </div>
+
+        {% block nav %}
+        {% end %}
+      </header>
+
+      <section id="content">
+        {% block body %}{% end %}
+      </section>
+
+      <footer>
+        {% if current_user %}
+          <a id="logout" href="/auth/logout?next={{ url_escape(request.uri) }}">Déconnexion</a>
+        {% end %}
+      </footer>
+
+    </div>
+
+  <!--Javascript-->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script src="{{ static_url('ws-client.js') }}"></script>
+
+  </body>
+</html>
