@@ -14,9 +14,11 @@ class Relay:
     def __init__(self, pin):
         """TODO"""
         self._pin = pin
-        
         # Set pin as out
         GPIO.setup(self._pin, GPIO.OUT)
+        
+        # Initialize as an open relay
+        self.open()
         
         # Store state names
         self._state_open = "open"
@@ -31,6 +33,9 @@ class Relay:
 
     def open(self):
         GPIO.output(self.pin, GPIO.HIGH)
+    
+    def read(self):
+        return GPIO.input(self.pin) == GPIO.LOW
 
     def state(self):
         state = GPIO.input(self.pin)

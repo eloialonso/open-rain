@@ -25,11 +25,26 @@ from sensor.ultrasonic import UltrasonicSensor
 from relay.relay import Relay
 
 
+# define("port", default=9080, help="run on the given port", type=int)
+# define("mysql_host", default="127.0.0.1:3306", help="blog database host")
+# define("mysql_database", default="openpluie", help="blog database name")
+# define("mysql_user", default="eloi", help="blog database user")
+# define("mysql_password", default="openpluie", help="blog database password") # TODO WARNING here
+
 # Define log file
 log.basicConfig(filename='server.log', format='%(asctime)s %(message)s', level=log.DEBUG)
 
 # A thread pool to be used for password hashing with bcrypt.
 executor = concurrent.futures.ThreadPoolExecutor(2)
+
+
+# pins = [int(pin) for id, pin in all_pins["relay"].items()]
+
+# loop through pins and set mode and state to "high"
+# GPIO.setmode(GPIO.BCM) # TODO in decorator
+# for i in pins:
+#    GPIO.setup(i, GPIO.OUT)
+#    GPIO.output(i, GPIO.HIGH)
 
 
 def parse_args():
@@ -68,7 +83,7 @@ def load_pin_config(path):
     """Load the pin config file and check it"""
     with open(path, "r") as f:
         pins = json.load(f)
-    assert sorted(pins.keys()) == sorted(["relay", "trigger", "echo"])
+    assert sorted(pins.keys()) == ["relay", "trigger", "echo"]
     return pins
 
 
@@ -103,7 +118,7 @@ def gpio(function):
 
 
 class Application(tornado.web.Application):
-    def __init__(self, sql_config, sensor, relays):
+    def __init__(self, sql_config):
         """TODO"""
         handlers = [
             (r"/", HomeHandler),
@@ -124,10 +139,6 @@ class Application(tornado.web.Application):
         )
 
         super(Application, self).__init__(handlers, **settings)
-        
-        # Hardware: ultrasonic sensor and relays
-        self.relays = relays
-        self.sensor = sensor
 
         # Have one global connection to the database across all handlers
         self.database = mysql.connector.connect(
@@ -139,25 +150,34 @@ class Application(tornado.web.Application):
         )
         self.cursor = self.database.cursor()
 
+        # host="127.0.0.1",
+        # database="openpluie",
+        # port=3306,
+        # user="eloi",
+        # passwd="openpluie"
+        # )
+
+        # self.db = torndb.Connection()
+
         # manage gpio state TODO wtf ??
-        self.relay_state = {id: relay.read() for id, relay in relays.items()}
+        self.gpio_state = [False] * len(pins) # TODO
 
 
 class BaseHandler(tornado.web.RequestHandler):
     """TODO"""
     @property
-    def cursor(self):
-        return self.application.cursor
+    def db(self):
+        return self.application.db
 
     @property
-    def relay_state(self):
-        return self.application.relay_state
+    def gpio_state(self):
+        return self.application.gpio_state
 
     def get_current_user(self):
         user_id = self.get_secure_cookie("user")
         if not user_id:
             return None
-        self.cursor.execute("SELECT * FROM users WHERE id = '{}'".format(int(user_id)))
+        self.cursor.execute("SELECT * FROM users WHERE id = %s", int(user_id))
         return self.cursor.fetchone()
         # return self.db.get("SELECT * FROM users WHERE id = %s", int(user_id))
 
@@ -169,8 +189,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def user_is_admin(self):
         user = self.get_current_user()
         if user:
-            _, username, first_name, last_name, _ = user
-            return username == 'admin' and first_name == "Eloi" and last_name == "Alonso"
+            return user.username == 'admin' and user.first_name == "Eloi" and user.last_name == "Alonso"
         return False
 
 
@@ -178,9 +197,11 @@ class HomeHandler(BaseHandler):
     """TODO"""
     @tornado.web.authenticated # this decorator redirects the user the login_url if he is not authenticated
     def get(self):
-        _, username, _, _, _ = self.get_current_user()
-        log.info("[HTTP](MainHandler) {} connected.".format(username))
-        self.render("home.html", admin=self.user_is_admin(), relay_state=self.relay_state)
+        log.info("[HTTP](MainHandler) {} connected.".format(self.get_current_user().username))
+        # print >> log_file, "[HTTP](MainHandler) {} connected.".format(self.get_current_user().username)
+        # name = tornado.escape.xhtml_escape(self.current_user)
+        # self.write("Hello, " + name)
+        self.render("home.html", admin=self.user_is_admin(), gpio_state=self.gpio_state)
 
 
 class AuthCreateHandler(BaseHandler):
@@ -213,6 +234,10 @@ class AuthCreateHandler(BaseHandler):
         val = (username, self.get_argument("first_name"), self.get_argument("last_name"), hashed_password)
         self.cursor.execute(sql, val)
         self.database.commit()
+        # user_id = self.db.execute(
+        #    "INSERT INTO users (username, first_name, last_name, hashed_password) "
+        #    "VALUES ({}, {}, {}, {})".format(username, self.get_argument("first_name"),
+        #    self.get_argument("last_name"), hashed_password))
 
         self.redirect(self.get_argument("next", "/"))
 
@@ -225,18 +250,17 @@ class AuthLoginHandler(BaseHandler):
 
     @gen.coroutine
     def post(self):
-        self.cursor.execute("SELECT * FROM users WHERE username = '{}'".format(self.get_argument("username")))
+        self.cursor.execute("SELECT * FROM users WHERE username = %s", self.get_argument("username"))
         user = self.cursor.fetchone()
         # user = self.db.get("SELECT * FROM users WHERE username = %s", self.get_argument("username"))
         if not user:
             self.render("login.html", error="username not found")
             return
-        user_id, _, _, _, true_hash = user
         hashed_password = yield executor.submit(
             bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
-            tornado.escape.utf8(true_hash))
-        if bytes(true_hash, "utf-8") == hashed_password:
-            self.set_secure_cookie("user", str(user_id), expires_days=None)
+            tornado.escape.utf8(user.hashed_password))
+        if hashed_password == user.hashed_password:
+            self.set_secure_cookie("user", str(user.id), expires_days=None)
             self.redirect(self.get_argument("next", "/"))
         else:
             self.render("login.html", error="incorrect password")
@@ -249,7 +273,6 @@ class AuthLogoutHandler(BaseHandler):
         self.clear_cookie("user")
         self.redirect(self.get_argument("next", "/"))
 
-
 class WSHandler(tornado.websocket.WebSocketHandler):
     """ handles web sockets """
     def open(self):
@@ -257,41 +280,37 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         if not user_id:
             return None
         log.info('[WS] Connection was opened.')
+        # print >> log_file, '[WS] Connection was opened.'
 
     def on_message(self, message):
         log.info('[WS] Incoming message: {}'.format(message))
-        if message.startswith("slider"):
-            id = int(message[6])
-            if message.endswith("on"):
-                self.application.relays[id].close()
-                self.application.relay_state[id] = True
-            elif message.endswith("off"):
-                self.application.relays[id].open()
-                self.application.relay_state[id] = False
-            else:
-                raise tornado.web.HTTPError(404)("Unknown WS message.")
-        #if message == "slider1_on":
-        log.info('[App] GPIO states : {} '.format(self.application.relay_state))
-        #    self.application.relays[1].close()
-        #    self.application.relay_state[1] = True
-        #elif message == "slider1_off":
-        #    self.application.relays[1].open()
-        #    self.application.relay_state[1] = False
-        #elif message == "slider2_on":
-        #    self.application.relays[2].close()
-        #    self.application.relay_state[2] = True
-        #elif message == "slider2_off":
-        #    self.application.relays[2].open()
-        #    self.application.relay_state[2] = False
-        #else:
+        # print >> log_file, '[WS] Incoming message: {}'.format(message)
+        log.info('[App] GPIO states : {} '.format(self.application.gpio_state))
+        # print >> log_file, '[App] GPIO states : {} '.format(self.application.gpio_state)
+        if message == "slider1_on":
+            self.application.gpio_state[0] = True
+            GPIO.output(pins[0], GPIO.LOW)
+        elif message == "slider1_off":
+            self.application.gpio_state[0] = False
+            GPIO.output(pins[0], GPIO.HIGH)
+        elif message == "slider2_on":
+            self.application.gpio_state[1] = True
+            GPIO.output(pins[1], GPIO.LOW)
+        elif message == "slider2_off":
+            self.application.gpio_state[1] = False
+            GPIO.output(pins[1], GPIO.HIGH)
+        else:
+            raise tornado.web.HTTPError(404)("Unknown WS message.")
+
 
     def on_close(self):
         log.info('[WS] Connection was closed.')
+        # print >> log_file, '[WS] Connection was closed.'
 
 
 @gpio
 def main():
-    
+    import pdb; pdb.set_trace()
     # Parse command line
     args = parse_args()
 
@@ -313,11 +332,11 @@ def main():
         relays[int(id)] = Relay(pin)
 
     # Database config
-    sql_config = {"host": args.sqlhost, "port": args.sqlport, "database": args.sqldb, "user": args.sqluser, "password": args.sqlpwd}
+    sql_config = {"host": args.sqlhost, "port": args.sqlport, "database": args.sqlhost, "user": args.sqluser, "password": args.sqlpwd}
 
     try:
         # tornado.options.parse_command_line()
-        app = Application(sql_config, sensor, relays)
+        app = Application(sql_config)
         http_server = tornado.httpserver.HTTPServer(app)
         http_server.listen(args.port)
         main_loop = tornado.ioloop.IOLoop.instance()
@@ -329,6 +348,12 @@ def main():
 
     except Exception as e:
         log.critical(e)
+
+        # for i in pins:
+        #        GPIO.setup(i, GPIO.OUT)
+        #        GPIO.output(i, GPIO.HIGH)
+        # GPIO.cleanup()
+        # # log_file.close()
 
 
 if __name__ == "__main__":

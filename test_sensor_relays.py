@@ -23,13 +23,36 @@ def parse_args():
     return parser.parse_args()
 
 
+def gpio(function):
+    """Decorator.
+    
+    - Set mode to GPIO.BCM
+    - Call GPIO.cleanup if an exception is raised (or if ctrl+c)
+    """
+    
+    def gpio_function():
+        GPIO.setmode(GPIO.BCM)
+        try:
+            function()
+        except KeyboardInterrupt:
+            print("\nInterruption from user.")
+        except Exception as e:
+            print(e)
+        finally:
+            print("Cleaning GPIO.")
+            GPIO.cleanup()
+    
+    return gpio_function
+
+
+@gpio
 def main():
     
     # Parse command line
     args = parse_args()
 
     # set pin mode
-    GPIO.setmode(GPIO.BCM)
+    # GPIO.setmode(GPIO.BCM)
 
     # Load pin info
     with open(args.pins, "r") as f:
@@ -48,7 +71,7 @@ def main():
             relays[int(id)] = None
             continue
         relays[int(id)] = Relay(pin)
-
+    
     while True:
         
         # Read input from user
@@ -81,14 +104,14 @@ def main():
 
 if __name__ == "__main__":
     
-    try:
-        main()
-
+    main()
+    #try:
+    #    main()
     # Reset by pressing CTRL + C
-    except KeyboardInterrupt:
-        print("\n\nMeasurement stopped by user.")
-    except Exception as e:
-        print(e)
-    finally:
-        print("Cleaning GPIO.")
-        GPIO.cleanup()
+    #except KeyboardInterrupt:
+    #    print("\n\nMeasurement stopped by user.")
+    #except Exception as e:
+    #    print(e)
+    #finally:
+    #    print("Cleaning GPIO.")
+    #    GPIO.cleanup()

@@ -16,30 +16,20 @@
 {% end %}
 
 {% block body %}
-
-  <div class="pilotage">
-    <label for="slider1" class="switch">
-      {% if gpio_state[0] %}
-        <input type="checkbox" id="slider1" checked>
+    
+  {% for id in range(1, len(relay_state) + 1) %}
+    <div class="pilotage">
+      <label for="{{ "slider{}".format(id) }}" class="switch">
+      {% if relay_state[int(id)] %}
+        <input type="checkbox" id="{{ "slider" + str(id) }}" checked>
       {% else %}
-        <input type="checkbox" id="slider1" unchecked>
+        <input type="checkbox" id="{{ "slider" + str(id) }}" unchecked>
       {% end %}
       <span class="slider round"></span>
-    </label>
-    <h2>arrosage n°1</h2>
-  </div>
-
-  <div class="pilotage">
-    <label for="slider2" class="switch">
-      {% if gpio_state[1] %}
-        <input type="checkbox" id="slider2" checked>
-      {% else %}
-        <input type="checkbox" id="slider2" unchecked>
-      {% end %}
-      <span class="slider round"></span>
-    </label>
-    <h2>ampoule</h2>
-  </div>
+      </label>
+      <h2>arrosage n°{{id}}</h2>
+    </div>
+  {% end %}
 
   Websocket status:
   <br>
