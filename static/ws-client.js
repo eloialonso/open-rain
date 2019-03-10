@@ -49,10 +49,10 @@ $(document).ready(function(){
         // this will contain a reference to the checkbox
         if (this.checked) {
             // the checkbox is now checked
-            ws.send("slider1_on")
+            ws.send("slider3_on")
         } else {
         // the checkbox is now no longer checked
-            ws.send("slider1_off")
+            ws.send("slider3_off")
         }
     });
 
@@ -61,10 +61,10 @@ $(document).ready(function(){
         // this will contain a reference to the checkbox
         if (this.checked) {
             // the checkbox is now checked
-            ws.send("slider1_on")
+            ws.send("slider4_on")
         } else {
         // the checkbox is now no longer checked
-            ws.send("slider1_off")
+            ws.send("slider4_off")
         }
     });
 
@@ -73,10 +73,10 @@ $(document).ready(function(){
         // this will contain a reference to the checkbox
         if (this.checked) {
             // the checkbox is now checked
-            ws.send("slider1_on")
+            ws.send("slider5_on")
         } else {
         // the checkbox is now no longer checked
-            ws.send("slider1_off")
+            ws.send("slider5_off")
         }
     });
 
@@ -85,10 +85,10 @@ $(document).ready(function(){
         // this will contain a reference to the checkbox
         if (this.checked) {
             // the checkbox is now checked
-            ws.send("slider1_on")
+            ws.send("slider6_on")
         } else {
         // the checkbox is now no longer checked
-            ws.send("slider1_off")
+            ws.send("slider6_off")
         }
     });
 
@@ -97,10 +97,10 @@ $(document).ready(function(){
         // this will contain a reference to the checkbox
         if (this.checked) {
             // the checkbox is now checked
-            ws.send("slider1_on")
+            ws.send("slider7_on")
         } else {
         // the checkbox is now no longer checked
-            ws.send("slider1_off")
+            ws.send("slider7_off")
         }
     });
 
@@ -108,10 +108,10 @@ $(document).ready(function(){
         // this will contain a reference to the checkbox
         if (this.checked) {
             // the checkbox is now checked
-            ws.send("slider1_on")
+            ws.send("slider8_on")
         } else {
         // the checkbox is now no longer checked
-            ws.send("slider1_off")
+            ws.send("slider8_off")
         }
     });
 });
