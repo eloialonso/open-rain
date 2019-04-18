@@ -13,105 +13,66 @@ $(document).ready(function(){
 
     ws.onopen = function(evt) {
         $("#ws-status").html("Connected");
-        };
+    };
 
+    /* Function called when the socket receives a message */
     ws.onmessage = function(evt) {
-        };
+        // Parse input dictionary
+        var messageDict = JSON.parse(evt.data);
+
+        // Sensor measure
+        if (messageDict.type == "sensor_measure") {
+            $("#measure_value").html(messageDict.value + " L")
+        }
+    };
 
     ws.onclose = function(evt) {
         $("#ws-status").html("Disconnected");
-        };
+    };
 
-    $('#slider1').change(function() {
-        // this will contain a reference to the checkbox
-        if (this.checked) {
-            // the checkbox is now checked
-            ws.send("slider1_on")
-        } else {
-        // the checkbox is now no longer checked
-            ws.send("slider1_off")
-        }
-    });
+    /* Called when touching a slider (to switch relay state) */
+    $('.relay').change(function() {
 
-    $('#slider2').change(function() {
-        // this will contain a reference to the checkbox
         if (this.checked) {
-            // the checkbox is now checked
-            ws.send("slider2_on")
+            ws.send(this.id + '_on');
         } else {
-        // the checkbox is now no longer checked
-            ws.send("slider2_off")
+            ws.send(this.id + '_off');
         }
+
     });
 
 
-    $('#slider3').change(function() {
-        // this will contain a reference to the checkbox
-        if (this.checked) {
-            // the checkbox is now checked
-            ws.send("slider3_on")
-        } else {
-        // the checkbox is now no longer checked
-            ws.send("slider3_off")
-        }
-    });
+// var myVar = setInterval(myTimer, 1000);
+
+// function myTimer() {
+//   var d = new Date();
+//   var t = d.toLocaleTimeString();
+//   document.getElementById("demo").innerHTML = t;
+// }
+
+// function myStopFunction() {
+//   clearInterval(myVar);
+// }
 
 
-    $('#slider4').change(function() {
-        // this will contain a reference to the checkbox
-        if (this.checked) {
-            // the checkbox is now checked
-            ws.send("slider4_on")
-        } else {
-        // the checkbox is now no longer checked
-            ws.send("slider4_off")
-        }
-    });
 
+    /* Called when clicking on the measure button */
+    var measureInterval = null;
+    var measureButton = document.getElementById("button_measure");
+    measureButton.addEventListener("click", StartMeasure);
 
-    $('#slider5').change(function() {
-        // this will contain a reference to the checkbox
-        if (this.checked) {
-            // the checkbox is now checked
-            ws.send("slider5_on")
-        } else {
-        // the checkbox is now no longer checked
-            ws.send("slider5_off")
-        }
-    });
+    function StartMeasure(){
+        measureInterval = setInterval(function(){ws.send("do_measure");}, 1500);
+        measureButton.removeEventListener("click", StartMeasure);
+        measureButton.addEventListener("click", StopMeasure);
+        measureButton.value = "Stop";
+    }
 
+    function StopMeasure(){
+        clearInterval(measureInterval);
+        measureButton.removeEventListener("click", StopMeasure);
+        measureButton.addEventListener("click", StartMeasure);
+        measureButton.value = "Mesurer";
+    }
 
-    $('#slider6').change(function() {
-        // this will contain a reference to the checkbox
-        if (this.checked) {
-            // the checkbox is now checked
-            ws.send("slider6_on")
-        } else {
-        // the checkbox is now no longer checked
-            ws.send("slider6_off")
-        }
-    });
-
-
-    $('#slider7').change(function() {
-        // this will contain a reference to the checkbox
-        if (this.checked) {
-            // the checkbox is now checked
-            ws.send("slider7_on")
-        } else {
-        // the checkbox is now no longer checked
-            ws.send("slider7_off")
-        }
-    });
-
-    $('#slider8').change(function() {
-        // this will contain a reference to the checkbox
-        if (this.checked) {
-            // the checkbox is now checked
-            ws.send("slider8_on")
-        } else {
-        // the checkbox is now no longer checked
-            ws.send("slider8_off")
-        }
-    });
 });
