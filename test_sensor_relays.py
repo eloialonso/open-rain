@@ -9,8 +9,8 @@ import json
 
 import RPi.GPIO as GPIO
 
-from relay.relay import Relay
-from sensor.ultrasonic import UltrasonicSensor
+from inout.relay import Relay
+from inout.ultrasonic import UltrasonicSensor
 
 
 def parse_args():
@@ -105,13 +105,4 @@ def main():
 if __name__ == "__main__":
     
     main()
-    #try:
-    #    main()
-    # Reset by pressing CTRL + C
-    #except KeyboardInterrupt:
-    #    print("\n\nMeasurement stopped by user.")
-    #except Exception as e:
-    #    print(e)
-    #finally:
-    #    print("Cleaning GPIO.")
-    #    GPIO.cleanup()
+
