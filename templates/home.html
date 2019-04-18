@@ -16,14 +16,21 @@
 {% end %}
 
 {% block body %}
-    
-  {% for id in range(1, len(relay_state) + 1) %}
+
+  <!-- Sensor -->
+  <div class="pilotage">
+    <input type="button" class="sensor" id="button_measure" value="Mesurer">
+    <h2 id="measure_value">...</h2>
+  </div>
+
+  <!-- Relays -->
+  {% for id, state in relay_state.items() %}
     <div class="pilotage">
-      <label for="{{ "slider{}".format(id) }}" class="switch">
-      {% if relay_state[int(id)] %}
-        <input type="checkbox" id="{{ "slider" + str(id) }}" checked>
+      <label for="{{ 'slider' + str(id) }}" class="switch">
+      {% if state %}
+        <input type="checkbox" class="relay" id="{{ 'slider' + str(id) }}" checked>
       {% else %}
-        <input type="checkbox" id="{{ "slider" + str(id) }}" unchecked>
+        <input type="checkbox" class="relay" id="{{ 'slider' + str(id) }}" unchecked>
       {% end %}
       <span class="slider round"></span>
       </label>
@@ -31,11 +38,12 @@
     </div>
   {% end %}
 
+  <!-- Websocket status -->
   Websocket status:
   <br>
   <div id="ws-status"> Waiting... </div>
 
-  {% end %}
+{% end %}
 
 
 
