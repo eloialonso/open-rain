@@ -141,16 +141,16 @@ def main():
         log.debug("No water volume measured yet.")
 
     # Log new volume
-    log.info("[VOLUME] {:2f} L (before watering)".format(volume))
+    log.info("[VOLUME] {:.2f} L (before watering)".format(volume))
 
     # If not enough water, do nothing
     if volume < args.min_volume:
-        log.WARNING("[SECURITY] Not enough water: {} L. No watering.".format(volume))
+        log.warning("[SECURITY] Not enough water: {:.2f} L. No watering.".format(volume))
         return
 
     # If it rained, do nothing
     if last_volume is not None and volume - last_volume > args.rain_volume:
-        log.WARNING("[SECURITY] It rained {} L. No watering.".format(volume - last_volume))
+        log.warning("[SECURITY] It rained {:.2f} L. No watering.".format(volume - last_volume))
         return
 
     # Water the plants, with a time limit for security.
@@ -166,7 +166,7 @@ def main():
             break
 
         if time.time() - start_time > args.time_limit:
-            log.WARNING("[SECURITY] Time limit reached, stopping watering.")
+            log.warning("[SECURITY] Time limit reached, stopping watering.")
             break
 
     # Stop watering.
