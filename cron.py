@@ -16,8 +16,8 @@ import time
 
 import RPi.GPIO as GPIO
 
-from sensor.ultrasonic import UltrasonicSensor
-from relay.relay import Relay
+from inout.ultrasonic import UltrasonicSensor
+from inout.relay import Relay
 
 
 # Define log file
