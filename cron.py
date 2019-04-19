@@ -117,7 +117,7 @@ def main():
             relays[int(id)] = None
             continue
         relays[int(id)] = Relay(pin)
-    valve = relays[valve_relay]
+    valve = relays[args.valve_relay]
 
     # Water container
     water_container = {
