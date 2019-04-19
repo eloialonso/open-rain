@@ -35,7 +35,7 @@ def parse_args():
         help="Path to the pins configuration file (default: './config/pins.json').")
     rpi.add_argument("--temperature", type=int, default=20,
         help="Temperaturen in Celsius, to compute sound speed (default: 20°C).")
-    rpi.add_argument("--valve_relay", type=int, choice=[1, 2, 3, 4, 5, 6, 7, 8], default=1,
+    rpi.add_argument("--valve_relay", type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8], default=1,
         help="Relay of the electrovalve.")
 
     # Water container
