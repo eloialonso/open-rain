@@ -38,19 +38,19 @@ def parse_args():
     rpi.add_argument("--valve_relay", type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8], default=1,
         help="Relay of the electrovalve.")
 
-    # Water container
+    # Water container TODO
     container = parser.add_argument_group("Water container.")
-    container.add_argument("--height", type=float, default=3, # TODO
+    container.add_argument("--height", type=float, default=3,
         help="Height of the water container, in meters.")
-    container.add_argument("--diameter", type=float, default=1, # TODO
+    container.add_argument("--diameter", type=float, default=1,
         help="Diameter of the water container, in meters.")
 
-    # Plant watering
+    # Plant watering TODO
     water = parser.add_argument_group("Plants watering.")
-    water.add_argument("--liters", type=float,
+    water.add_argument("--liters", type=float, default=5,
         help="Number of liters to spread.")
 
-    # Security
+    # Security TODO
     security = parser.add_argument_group("Security limits.")
     security.add_argument("--min_volume", type=float, default=200,
         help="Minimum number of liters to allow to spread water")
