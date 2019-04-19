@@ -40,9 +40,9 @@ def parse_args():
 
     # Water container
     container = parser.add_argument_group("Water container.")
-    container.add_argument("--height", type=float, default=0.198,
+    container.add_argument("--height", type=float, default=3, # TODO
         help="Height of the water container, in meters.")
-    container.add_argument("--diameter", type=float, default=0.21,
+    container.add_argument("--diameter", type=float, default=1, # TODO
         help="Diameter of the water container, in meters.")
 
     # Plant watering
