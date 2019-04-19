@@ -1,45 +1,33 @@
-"""
-Script to run periodically with cron.
-"""
-
 #! /usr/bin/env python
 # coding: utf-8
 
 
-"""TODO"""
+"""
+Script to run periodically with cron.
+"""
 
 
 import argparse
 import json
 import logging as log
+import math
 import os
+import time
 
-import bcrypt
-import mysql.connector
 import RPi.GPIO as GPIO
-import tornado.escape
-import tornado.httpserver
-import tornado.ioloop
-import tornado.web
-import tornado.websocket
-from tornado import gen
 
 from sensor.ultrasonic import UltrasonicSensor
 from relay.relay import Relay
 
 
 # Define log file
-log.basicConfig(filename='server.log', format='%(asctime)s %(message)s', level=log.DEBUG)
+LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cron.log")
+log.basicConfig(filename=LOG_FILE, format='%(asctime)s %(message)s', level=log.DEBUG)
 
 
 def parse_args():
     """Command line parser."""
     parser = argparse.ArgumentParser()
-
-    # Server
-    server = parser.add_argument_group("Server.")
-    server.add_argument("--port", type=int, default=9080,
-        help="Port to run the server on (default: 9080)")
 
     # Raspberry
     rpi = parser.add_argument_group("Raspberry.")
@@ -47,40 +35,39 @@ def parse_args():
         help="Path to the pins configuration file (default: './config/pins.json').")
     rpi.add_argument("--temperature", type=int, default=20,
         help="Temperaturen in Celsius, to compute sound speed (default: 20°C).")
+    rpi.add_argument("--valve_relay", type=int, choice=[1, 2, 3, 4, 5, 6, 7, 8], default=1,
+        help="Relay of the electrovalve.")
 
-    # Database
-    db = parser.add_argument_group("SQL Database.")
-    db.add_argument("--sqlhost", default="127.0.0.1",
-        help="Database host (default: 127.0.0.1)."),
-    db.add_argument("--sqlport", type=int, default=3306,
-        help="Database port.")
-    db.add_argument("--sqldb", default="openpluie",
-        help="Database name (default: 'openpluie').")
-    db.add_argument("--sqluser", default="eloi",
-        help="Database user (default: 'eloi').")
-    db.add_argument("--sqlpwd", required=True, type=str,
-        help="Database password.")
+    # Water container
+    container = parser.add_argument_group("Water container.")
+    container.add_argument("--height", type=float, default=0.198,
+        help="Height of the water container, in meters.")
+    container.add_argument("--diameter", type=float, default=0.21,
+        help="Diameter of the water container, in meters.")
+
+    # Plant watering
+    water = parser.add_argument_group("Plants watering.")
+    water.add_argument("--liters", type=float,
+        help="Number of liters to spread.")
+
+    # Security
+    security = parser.add_argument_group("Security limits.")
+    security.add_argument("--min_volume", type=float, default=200,
+        help="Minimum number of liters to allow to spread water")
+    security.add_argument("--rain_volume", type=float, default=250,
+        help="Volume added to detect a rain fall.")
+    security.add_argument("--time_limit", type=float, default=1800,
+        help="Watering time limit, for security, in seconds.")
 
     return parser.parse_args()
 
 
 def load_pin_config(path):
-    """Load the pin config file and check it"""
+    """Load the pin config file and check it."""
     with open(path, "r") as f:
         pins = json.load(f)
     assert sorted(pins.keys()) == sorted(["relay", "trigger", "echo"])
     return pins
-
-
-def admin(method):
-    """Decorator.
-    Require that the user is logged in as an admin."""
-    @tornado.web.authenticated
-    def wrapper(self, *args, **kwargs):
-        if not self.user_is_admin():
-            raise tornado.web.HTTPError(403)("Denied: you are not admin.")
-        return method(self, *args, **kwargs)
-    return wrapper
 
 
 def gpio(function):
@@ -93,7 +80,7 @@ def gpio(function):
         try:
             function()
         except KeyboardInterrupt:
-            log.warning("\nInterruption from user.")
+            log.warning("Interruption from user.")
         except Exception as e:
             log.critical(e)
         finally:
@@ -102,191 +89,10 @@ def gpio(function):
     return gpio_function
 
 
-class Application(tornado.web.Application):
-    def __init__(self, sql_config, sensor, relays):
-        """TODO"""
-        handlers = [
-            (r"/", HomeHandler),
-            (r'/ws', WSHandler),
-            (r"/auth/create", AuthCreateHandler),
-            (r"/auth/login", AuthLoginHandler),
-            (r"/auth/logout", AuthLogoutHandler),
-        ]
-
-        settings = dict(
-            page_title="OpenPluie",
-            template_path=os.path.join(os.path.dirname(__file__), "templates"),
-            static_path=os.path.join(os.path.dirname(__file__), "static"),
-            xsrf_cookies=True,
-            cookie_secret="iuev1456yih5678kvje78on", # TODO warning here
-            login_url="/auth/login",
-            debug=True,
-        )
-
-        super(Application, self).__init__(handlers, **settings)
-
-        # Hardware: ultrasonic sensor and relays
-        self.relays = relays
-        self.sensor = sensor
-
-        # Have one global connection to the database across all handlers
-        self.database = mysql.connector.connect(
-            host=sql_config["host"],
-            port=sql_config["port"],
-            database=sql_config["database"],
-            user=sql_config["user"],
-            password=sql_config["password"]
-        )
-        self.cursor = self.database.cursor()
-
-        # manage gpio state TODO wtf ??
-        self.relay_state = {id: relay.read() for id, relay in relays.items()}
-
-
-class BaseHandler(tornado.web.RequestHandler):
-    """TODO"""
-    @property
-    def cursor(self):
-        return self.application.cursor
-
-    @property
-    def relay_state(self):
-        return self.application.relay_state
-
-    def get_current_user(self):
-        user_id = self.get_secure_cookie("user")
-        if not user_id:
-            return None
-        self.cursor.execute("SELECT * FROM users WHERE id = '{}'".format(int(user_id)))
-        return self.cursor.fetchone()
-        # return self.db.get("SELECT * FROM users WHERE id = %s", int(user_id))
-
-    def any_user_exists(self):
-        self.cursor.execute("SELECT * FROM users LIMIT 1")
-        return bool(self.cursor.fetchall())
-        # return bool(self.db.get("SELECT * FROM users LIMIT 1"))
-
-    def user_is_admin(self):
-        user = self.get_current_user()
-        if user:
-            _, username, first_name, last_name, _ = user
-            return username == 'admin' and first_name == "Eloi" and last_name == "Alonso"
-        return False
-
-
-class HomeHandler(BaseHandler):
-    """TODO"""
-    @tornado.web.authenticated # this decorator redirects the user the login_url if he is not authenticated
-    def get(self):
-        _, username, _, _, _ = self.get_current_user()
-        log.info("[HTTP](MainHandler) {} connected.".format(username))
-        self.render("home.html", admin=self.user_is_admin(), relay_state=self.relay_state)
-
-
-class AuthCreateHandler(BaseHandler):
-    """TODO"""
-    @admin
-    def get(self):
-        self.render("create_user.html", admin=self.user_is_admin(), error=None)
-
-    @gen.coroutine
-    def post(self):
-        hashed_password = yield executor.submit(
-            bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
-            bcrypt.gensalt())
-        hashed_password2 = yield executor.submit(
-            bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password2")),
-            bcrypt.gensalt())
-        username = self.get_argument("username")
-        # if bool(self.db.get("SELECT * FROM users WHERE username = %s", username)):
-        self.cursor.execute("SELECT * FROM users WHERE username = %s", username)
-        if bool(self.cursor.fetchall()):
-            # raise tornado.web.HTTPError(400, "user already created, please choose another username.")
-            self.render("create_user.html", error="user already created, please choose another username.")
-            return
-        if self.get_argument("password") != self.get_argument("password2"):
-            self.render("create_user.html", error="Passwords are different.")
-            return
-
-        # insert query
-        sql = "INSERT INTO users (username, first_name, last_name, hashed_password) VALUES (%s, %s, %s, %s)"
-        val = (username, self.get_argument("first_name"), self.get_argument("last_name"), hashed_password)
-        self.cursor.execute(sql, val)
-        self.database.commit()
-
-        self.redirect(self.get_argument("next", "/"))
-
-
-
-class AuthLoginHandler(BaseHandler):
-    """TODO"""
-    def get(self):
-        self.render("login.html", error=None)
-
-    @gen.coroutine
-    def post(self):
-        self.cursor.execute("SELECT * FROM users WHERE username = '{}'".format(self.get_argument("username")))
-        user = self.cursor.fetchone()
-        # user = self.db.get("SELECT * FROM users WHERE username = %s", self.get_argument("username"))
-        if not user:
-            self.render("login.html", error="username not found")
-            return
-        user_id, _, _, _, true_hash = user
-        hashed_password = yield executor.submit(
-            bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
-            tornado.escape.utf8(true_hash))
-        if bytes(true_hash, "utf-8") == hashed_password:
-            self.set_secure_cookie("user", str(user_id), expires_days=None)
-            self.redirect(self.get_argument("next", "/"))
-        else:
-            self.render("login.html", error="incorrect password")
-
-
-class AuthLogoutHandler(BaseHandler):
-    """TODO"""
-    @tornado.web.authenticated
-    def get(self):
-        self.clear_cookie("user")
-        self.redirect(self.get_argument("next", "/"))
-
-
-class WSHandler(tornado.websocket.WebSocketHandler):
-    """ handles web sockets """
-    def open(self):
-        user_id = self.get_secure_cookie("user")
-        if not user_id:
-            return None
-        log.info('[WS] Connection was opened.')
-
-    def on_message(self, message):
-        log.info('[WS] Incoming message: {}'.format(message))
-        if message.startswith("slider"):
-            id = int(message[6])
-            if message.endswith("on"):
-                self.application.relays[id].close()
-                self.application.relay_state[id] = True
-            elif message.endswith("off"):
-                self.application.relays[id].open()
-                self.application.relay_state[id] = False
-            else:
-                raise tornado.web.HTTPError(404)("Unknown WS message.")
-        #if message == "slider1_on":
-        log.info('[App] GPIO states : {} '.format(self.application.relay_state))
-        #    self.application.relays[1].close()
-        #    self.application.relay_state[1] = True
-        #elif message == "slider1_off":
-        #    self.application.relays[1].open()
-        #    self.application.relay_state[1] = False
-        #elif message == "slider2_on":
-        #    self.application.relays[2].close()
-        #    self.application.relay_state[2] = True
-        #elif message == "slider2_off":
-        #    self.application.relays[2].open()
-        #    self.application.relay_state[2] = False
-        #else:
-
-    def on_close(self):
-        log.info('[WS] Connection was closed.')
+def water_level(water_container, sensor_value):
+    """Computes volume based on sensor mesure and geometry of the water container."""
+    volume = math.pi * (water_container["radius"] ** 2) * (water_container["height"] - sensor_value)
+    return volume * 1000 # liters
 
 
 @gpio
@@ -298,12 +104,12 @@ def main():
     # Load pin config file
     pins = load_pin_config(args.pinconfig)
 
-    # Create ultrasonic sensor
+    # Initialize ultrasonic sensor
     sensor = UltrasonicSensor(trig=pins["trigger"],
                               echo=pins["echo"],
                               temperature=args.temperature)
 
-    # Create relays
+    # Initialize relays
     relays = {}
     for id, pin in pins["relay"].items():
         if pin is None:
@@ -311,24 +117,62 @@ def main():
             relays[int(id)] = None
             continue
         relays[int(id)] = Relay(pin)
+    valve = relays[valve_relay]
 
-    # Database config
-    sql_config = {"host": args.sqlhost, "port": args.sqlport, "database": args.sqldb, "user": args.sqluser, "password": args.sqlpwd}
+    # Water container
+    water_container = {
+        "height": args.height,
+        "radius": args.diameter / 2,
+    }
 
-    try:
-        # tornado.options.parse_command_line()
-        app = Application(sql_config, sensor, relays)
-        http_server = tornado.httpserver.HTTPServer(app)
-        http_server.listen(args.port)
-        main_loop = tornado.ioloop.IOLoop.instance()
-        log.info("Tornado Server started on port {}".format(args.port))
-        main_loop.start()
+    # Measure the water level
+    measure = sensor.median_measure()                   # Do measure
+    volume = water_level(water_container, measure)      # Convert it in a volume in liters
 
-    except KeyboardInterrupt:
-        log.warning("Stopped by user.")
+    # Load the last volume logged
+    with open(LOG_FILE, "r") as f:
+        lines = f.readlines()
+    last_volume = None
+    for line in lines[::-1]:
+        if "[VOLUME]" in line:
+            last_volume = float(line.split("[VOLUME] ")[-1].split(" L")[0])
+            break
+    else:
+        log.debug("No water volume measured yet.")
 
-    except Exception as e:
-        log.critical(e)
+    # Log new volume
+    log.info("[VOLUME] {:2f} L (before watering)".format(volume))
+
+    # If not enough water, do nothing
+    if volume < args.min_volume:
+        log.WARNING("[SECURITY] Not enough water: {} L. No watering.".format(volume))
+        return
+
+    # If it rained, do nothing
+    if last_volume is not None and volume - last_volume > args.rain_volume:
+        log.WARNING("[SECURITY] It rained {} L. No watering.".format(volume - last_volume))
+        return
+
+    # Water the plants, with a time limit for security.
+    start_time = time.time()
+    log.info("[WATERING] Starting.")
+    valve.close()
+    while True:
+        time.sleep(10)
+        new_measure = sensor.median_measure()                   # Do measure
+        new_volume = water_level(water_container, new_measure)  # Convert it in a volume in liters
+
+        if volume - new_volume > args.liters:
+            break
+
+        if time.time() - start_time > args.time_limit:
+            log.WARNING("[SECURITY] Time limit reached, stopping watering.")
+            break
+
+    # Stop watering.
+    valve.open()
+    log.info("[WATERING] Stopping. {:2f} L used.".format(volume - new_volume))
+    log.info("[VOLUME] {:2f} L (after watering)".format(new_volume))
 
 
 if __name__ == "__main__":
