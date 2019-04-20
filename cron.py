@@ -56,8 +56,8 @@ def parse_args():
         help="Minimum number of liters to allow to spread water.")
     security.add_argument("--rain_volume", type=float, default=250,
         help="Volume added to detect a rain fall.")
-    security.add_argument("--time_limit", type=float, default=1800,
-        help="Watering time limit, for security, in seconds.") # TODO calcul de débit
+    security.add_argument("--time_limit", type=float, default=2700,
+        help="Watering time limit, for security, in seconds.")
 
     return parser.parse_args()
 
@@ -129,7 +129,7 @@ def main():
     }
 
     # Measure the water level
-    measure = sensor.median_measure()                   # Do measure
+    measure = sensor.median_measure(rep=21)             # Do measure
     volume = water_level(water_container, measure)      # Convert it in a volume in liters
 
     # Load the last volume logged
@@ -164,7 +164,7 @@ def main():
     valve.close()
     while counter_stop < 3:
         time.sleep(10)
-        new_measure = sensor.median_measure()                   # Do measure
+        new_measure = sensor.median_measure(rep=21)             # Do measure
         new_volume = water_level(water_container, new_measure)  # Convert it in a volume in liters
 
         if volume - new_volume > args.liters:
