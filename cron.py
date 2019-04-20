@@ -38,26 +38,26 @@ def parse_args():
     rpi.add_argument("--valve_relay", type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8], default=1,
         help="Relay of the electrovalve.")
 
-    # Water container TODO
+    # Water container
     container = parser.add_argument_group("Water container.")
     container.add_argument("--height", type=float, default=3,
         help="Height of the water container, in meters.")
     container.add_argument("--diameter", type=float, default=1,
         help="Diameter of the water container, in meters.")
 
-    # Plant watering TODO
+    # Plant watering
     water = parser.add_argument_group("Plants watering.")
     water.add_argument("--liters", type=float, default=5,
         help="Number of liters to spread.")
 
-    # Security TODO
+    # Security
     security = parser.add_argument_group("Security limits.")
-    security.add_argument("--min_volume", type=float, default=200,
+    security.add_argument("--min_volume", type=float, default=350,
         help="Minimum number of liters to allow to spread water.")
     security.add_argument("--rain_volume", type=float, default=250,
         help="Volume added to detect a rain fall.")
     security.add_argument("--time_limit", type=float, default=1800,
-        help="Watering time limit, for security, in seconds.")
+        help="Watering time limit, for security, in seconds.") # TODO calcul de débit
 
     return parser.parse_args()
 
@@ -139,6 +139,7 @@ def main():
             break
     else:
         log.debug("No water volume measured yet.")
+
     # Log new volume
     log.info("[VOLUME] {:.2f} L (before watering)".format(volume))
 
