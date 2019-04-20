@@ -3,7 +3,7 @@
 
 
 """
-Script to run periodically with cron.
+Script to water the plants. To be run periodically with cron.
 """
 
 
@@ -90,14 +90,22 @@ def gpio(function):
 
 
 def water_level(water_container, sensor_value):
-    """Computes volume based on sensor mesure and geometry of the water container."""
+    """Computes volume based on sensor mesure and geometry of the water container.
+    
+    Args:
+        water_container: Dictionary containing the geometry of the container (height, diameter) in meters.
+        sensor_value: Measurement in meters.
+    Returns:
+        The remaining volume in the container in liters.
+    """
     volume = math.pi * (water_container["radius"] ** 2) * (water_container["height"] - sensor_value)
     return volume * 1000 # liters
 
 
 @gpio
 def main():
-    
+    """Main function to water plants."""
+
     # Log a new line for readability
     log.info("\n\n### New call ###\n")
 
@@ -120,16 +128,18 @@ def main():
             relays[int(id)] = None
             continue
         relays[int(id)] = Relay(pin)
+    
+    # The valve is a specific relay
     valve = relays[args.valve_relay]
 
-    # Water container
+    # Water container geometry (height and diameter)
     water_container = {
         "height": args.height,
         "radius": args.diameter / 2,
     }
 
-    # Measure the water level
-    measure = sensor.median_measure(rep=21)             # Do measure
+    # Measure the intial water level
+    measure = sensor.median_measure(rep=101)            # Do measure
     volume = water_level(water_container, measure)      # Convert it in a volume in liters
 
     # Load the last volume logged
@@ -144,10 +154,10 @@ def main():
     else:
         log.debug("[WATERING] No water volume measured yet.")
 
-    # Log new volume
+    # Log the new volume
     log.info("[VOLUME] {:.2f} L / {:.4f} cm (before watering)".format(volume, measure))
 
-    # If not enough water, do nothing
+    # If not enough water in the container, do nothing
     if volume < args.min_volume:
         log.warning("[SECURITY] Not enough water: {:.2f} L. No watering.".format(volume))
         return
@@ -166,12 +176,14 @@ def main():
         time.sleep(10)
         new_measure = sensor.median_measure(rep=21)             # Do measure
         new_volume = water_level(water_container, new_measure)  # Convert it in a volume in liters
-
+        
+        # Check that the desired volume is reached 
         if volume - new_volume > args.liters:
             counter_stop += 1
         else:
             counter_stop = 0
-
+        
+        # Time limit to prevent from accidentally emptying the container
         if time.time() - start_time > args.time_limit:
             log.warning("[SECURITY] Time limit reached, stopping watering.")
             break
