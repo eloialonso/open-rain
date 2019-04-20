@@ -22,7 +22,7 @@ from inout.relay import Relay
 
 # Define log file
 LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cron.log")
-log.basicConfig(filename=LOG_FILE, format='%(asctime)s %(message)s', level=log.DEBUG)
+log.basicConfig(filename=LOG_FILE, format='%(asctime)s %(message)s', level=log.INFO)
 
 
 def parse_args():
@@ -97,6 +97,9 @@ def water_level(water_container, sensor_value):
 
 @gpio
 def main():
+    
+    # Log a new line for readability
+    log.info("\n\n### New call ###\n")
 
     # Parse command line
     args = parse_args()
@@ -113,7 +116,7 @@ def main():
     relays = {}
     for id, pin in pins["relay"].items():
         if pin is None:
-            log.warning("Relay n°{} is not available (according to the pin config file)".format(id))
+            log.debug("Relay n°{} is not available (according to the pin config file)".format(id))
             relays[int(id)] = None
             continue
         relays[int(id)] = Relay(pin)
@@ -136,12 +139,13 @@ def main():
     for line in lines[::-1]:
         if "[VOLUME]" in line:
             last_volume = float(line.split("[VOLUME] ")[-1].split(" L")[0])
+            log.info("[WATERING] Last volume: {:.2f} L".format(last_volume))
             break
     else:
-        log.debug("No water volume measured yet.")
+        log.debug("[WATERING] No water volume measured yet.")
 
     # Log new volume
-    log.info("[VOLUME] {:.2f} L (before watering)".format(volume))
+    log.info("[VOLUME] {:.2f} L / {:.2f} cm (before watering)".format(volume, measure))
 
     # If not enough water, do nothing
     if volume < args.min_volume:
@@ -169,10 +173,12 @@ def main():
             log.warning("[SECURITY] Time limit reached, stopping watering.")
             break
 
+        log.info("[VOLUME] {:.2f} L / {:.2f} cm (while watering).".format(new_volume, new_measure))
+    
     # Stop watering.
     valve.open()
     log.info("[WATERING] Stopping. {:.2f} L used.".format(volume - new_volume))
-    log.info("[VOLUME] {:.2f} L (after watering)".format(new_volume))
+    log.info("[VOLUME] {:.2f} L / {:.2f} cm (after watering).".format(new_volume, new_measure))
 
 
 if __name__ == "__main__":
