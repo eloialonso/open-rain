@@ -21,7 +21,8 @@ from inout.relay import Relay
 
 
 # Define log file
-LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cron.log")
+CODE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(CODE_DIR, "cron.log")
 log.basicConfig(filename=LOG_FILE, format='%(asctime)s %(message)s', level=log.INFO)
 
 
@@ -31,7 +32,7 @@ def parse_args():
 
     # Raspberry
     rpi = parser.add_argument_group("Raspberry.")
-    rpi.add_argument("--pinconfig", type=str, default="./config/pins.json",
+    rpi.add_argument("--pinconfig", type=str, default=os.path.join(CODE_DIR, "config", "pins.json"),
         help="Path to the pins configuration file.")
     rpi.add_argument("--temperature", type=int, default=20,
         help="Temperaturen in Celsius, to compute sound speed.")
@@ -105,7 +106,7 @@ def water_level(water_container, sensor_value):
 @gpio
 def main():
     """Main function to water plants."""
-
+    import pdb; pdb.set_trace()
     # Log a new line for readability
     log.info("\n\n### New call ###\n")
 
