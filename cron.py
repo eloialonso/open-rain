@@ -106,7 +106,7 @@ def water_level(water_container, sensor_value):
 @gpio
 def main():
     """Main function to water plants."""
-    import pdb; pdb.set_trace()
+    
     # Log a new line for readability
     log.info("\n\n### New call ###\n")
 
