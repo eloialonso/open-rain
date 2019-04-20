@@ -158,16 +158,19 @@ def main():
         return
 
     # Water the plants, with a time limit for security.
+    counter_stop = 0
     start_time = time.time()
     log.info("[WATERING] Starting.")
     valve.close()
-    while True:
+    while counter_stop < 3:
         time.sleep(10)
         new_measure = sensor.median_measure()                   # Do measure
         new_volume = water_level(water_container, new_measure)  # Convert it in a volume in liters
 
         if volume - new_volume > args.liters:
-            break
+            counter_stop += 1
+        else:
+            counter_stop = 0
 
         if time.time() - start_time > args.time_limit:
             log.warning("[SECURITY] Time limit reached, stopping watering.")
@@ -177,9 +180,9 @@ def main():
     
     # Stop watering.
     valve.open()
-    log.info("[WATERING] Stopping. {:.2f} L used.".format(volume - new_volume))
+    log.info("[WATERING] Stopping. {:.2f} L used. Watered during {} seconds.".format(volume - new_volume, time.time() - start_time))
     log.info("[VOLUME] {:.2f} L / {:.4f} cm (after watering).".format(new_volume, new_measure))
-
+    
 
 if __name__ == "__main__":
     main()
