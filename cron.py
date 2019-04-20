@@ -145,7 +145,7 @@ def main():
         log.debug("[WATERING] No water volume measured yet.")
 
     # Log new volume
-    log.info("[VOLUME] {:.2f} L / {:.2f} cm (before watering)".format(volume, measure))
+    log.info("[VOLUME] {:.2f} L / {:.4f} cm (before watering)".format(volume, measure))
 
     # If not enough water, do nothing
     if volume < args.min_volume:
@@ -173,12 +173,12 @@ def main():
             log.warning("[SECURITY] Time limit reached, stopping watering.")
             break
 
-        log.info("[VOLUME] {:.2f} L / {:.2f} cm (while watering).".format(new_volume, new_measure))
+        log.info("[VOLUME] {:.2f} L / {:.4f} cm (while watering).".format(new_volume, new_measure))
     
     # Stop watering.
     valve.open()
     log.info("[WATERING] Stopping. {:.2f} L used.".format(volume - new_volume))
-    log.info("[VOLUME] {:.2f} L / {:.2f} cm (after watering).".format(new_volume, new_measure))
+    log.info("[VOLUME] {:.2f} L / {:.4f} cm (after watering).".format(new_volume, new_measure))
 
 
 if __name__ == "__main__":
