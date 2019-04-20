@@ -27,14 +27,14 @@ log.basicConfig(filename=LOG_FILE, format='%(asctime)s %(message)s', level=log.D
 
 def parse_args():
     """Command line parser."""
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # Raspberry
     rpi = parser.add_argument_group("Raspberry.")
     rpi.add_argument("--pinconfig", type=str, default="./config/pins.json",
-        help="Path to the pins configuration file (default: './config/pins.json').")
+        help="Path to the pins configuration file.")
     rpi.add_argument("--temperature", type=int, default=20,
-        help="Temperaturen in Celsius, to compute sound speed (default: 20°C).")
+        help="Temperaturen in Celsius, to compute sound speed.")
     rpi.add_argument("--valve_relay", type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8], default=1,
         help="Relay of the electrovalve.")
 
@@ -53,7 +53,7 @@ def parse_args():
     # Security TODO
     security = parser.add_argument_group("Security limits.")
     security.add_argument("--min_volume", type=float, default=200,
-        help="Minimum number of liters to allow to spread water")
+        help="Minimum number of liters to allow to spread water.")
     security.add_argument("--rain_volume", type=float, default=250,
         help="Volume added to detect a rain fall.")
     security.add_argument("--time_limit", type=float, default=1800,
