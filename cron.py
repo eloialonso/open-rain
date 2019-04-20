@@ -23,42 +23,42 @@ from inout.relay import Relay
 # Define log file
 CODE_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_FILE = os.path.join(CODE_DIR, "cron.log")
-log.basicConfig(filename=LOG_FILE, format='%(asctime)s %(message)s', level=log.INFO)
+log.basicConfig(filename=LOG_FILE, format='%(asctime)s [%(levelname).4s] %(message)s', level=log.INFO)
 
 
 def parse_args():
     """Command line parser."""
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser()
 
     # Raspberry
     rpi = parser.add_argument_group("Raspberry.")
     rpi.add_argument("--pinconfig", type=str, default=os.path.join(CODE_DIR, "config", "pins.json"),
-        help="Path to the pins configuration file.")
+        help="Path to the pins configuration file (default: %(default)s).")
     rpi.add_argument("--temperature", type=int, default=20,
-        help="Temperaturen in Celsius, to compute sound speed.")
+        help="Temperaturen in Celsius, to compute sound speed (default: %(default)d).")
     rpi.add_argument("--valve_relay", type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8], default=1,
-        help="Relay of the electrovalve.")
+        help="Relay of the electrovalve (default: %(default)d).")
 
     # Water container
     container = parser.add_argument_group("Water container.")
     container.add_argument("--height", type=float, default=3,
-        help="Height of the water container, in meters.")
+        help="Height of the water container, in meters (default: %(default)d).")
     container.add_argument("--diameter", type=float, default=1,
-        help="Diameter of the water container, in meters.")
+        help="Diameter of the water container, in meters (default: %(default)d).")
 
     # Plant watering
     water = parser.add_argument_group("Plants watering.")
     water.add_argument("--liters", type=float, default=5,
-        help="Number of liters to spread.")
+        help="Number of liters to spread (default: %(default)d).")
 
     # Security
     security = parser.add_argument_group("Security limits.")
     security.add_argument("--min_volume", type=float, default=350,
-        help="Minimum number of liters to allow to spread water.")
+        help="Minimum number of liters to allow to spread water (default: %(default)d).")
     security.add_argument("--rain_volume", type=float, default=250,
-        help="Volume added to detect a rain fall.")
+        help="Volume added to detect a rain fall (default: %(default)d).")
     security.add_argument("--time_limit", type=float, default=2700,
-        help="Watering time limit, for security, in seconds.")
+        help="Watering time limit, for security, in seconds (default: %(default)d).")
 
     return parser.parse_args()
 
