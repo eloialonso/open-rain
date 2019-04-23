@@ -7,7 +7,3 @@ scripts/*
 # Don't track secret cookie, etc.
 *.secret
 
-# Static files (fonts, images)
-static/alpha/*
-static/lato/*
-static/images/*
