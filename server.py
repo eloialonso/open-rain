@@ -21,14 +21,18 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 from tornado import gen
+
+from inout import Relay, UltrasonicSensor
+
+# Importing Rpi.GPIO will raise an error if not run on a RPi.
 try:
     import RPi.GPIO as GPIO
 except RuntimeError as e:
-    raise RuntimeError("{} \n==> Run the file 'server_demo_no_gpio.py' for a demo of the webserver without a Raspberry Pi.".format(e))
-
-from inout.ultrasonic import UltrasonicSensor
-from inout.relay import Relay
-
+    if input("Not runnning on a Raspberry Pi. Do you want do run a simplified demo of the web server anyway ? [Y/n]").lower() == "n":
+        exit()
+    RPI = False
+else:
+    RPI = True
 
 # Logging setup
 logFormatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s'")
@@ -68,9 +72,9 @@ def parse_args():
 
     # Water container
     db = parser.add_argument_group("Water container.")
-    db.add_argument("--height", type=float, default=0.198,
+    db.add_argument("--height", type=float, default=3,
         help="Height of the water container, in meters.")
-    db.add_argument("--diameter", type=float, default=0.21,
+    db.add_argument("--diameter", type=float, default=1,
         help="Diameter of the water container, in meters.")
 
     # Database
@@ -176,6 +180,7 @@ class Application(tornado.web.Application):
     def water_level(self):
         volume = math.pi * (self.water_container["radius"] ** 2) * (self.water_container["height"] - self.sensor_value)
         return "{:.2f}".format(volume * 1000) # liters
+
 
 class BaseHandler(tornado.web.RequestHandler):
     """TODO"""
@@ -319,18 +324,18 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         else:
             raise tornado.web.HTTPError(404)("Unknown WS message: {}".format(message))
 
-
     def on_close(self):
         logging.info('[WS] Connection was closed.')
 
 
-@gpio
 def main():
 
     # Parse command line
     args = parse_args()
 
     # Cookie secret
+    if not os.path.exists(args.cookie_secret):
+        raise RuntimeError("'{}' not found. Please define a secret cookie and provide its path through --cookie_secret argument.".format(args.cookie_secret))
     with open(args.cookie_secret, "r") as f:
         cookie_secret = f.read()
 
@@ -376,6 +381,11 @@ def main():
 
 
 if __name__ == "__main__":
+
+    # If running on a Raspberry Pi, we decorate the main function to clean GPIO if the execution is stopped.
+    if RPI:
+        main = gpio(main)
+
     main()
 
 
