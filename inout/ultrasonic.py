@@ -6,10 +6,18 @@ Module to use a HC-SR04 ultrasonic sensor with RPi.
 """
 
 
-import time
+import random
+import sys
 from statistics import median
+import time
 
-import RPi.GPIO as GPIO
+try:
+    import RPi.GPIO as GPIO
+except RuntimeError as e:
+    RPI = False
+    print("WARNING: not running on a Raspberry Pi. We simulate an ultrasonic sensor for the webserver demo.")
+else:
+    RPI = True
 
 
 class UltrasonicSensor:
@@ -21,8 +29,9 @@ class UltrasonicSensor:
         self._echo = echo
 
         # setup in/out
-        GPIO.setup(self._trig, GPIO.OUT)
-        GPIO.setup(self._echo, GPIO.IN)
+        if RPI:
+            GPIO.setup(self._trig, GPIO.OUT)
+            GPIO.setup(self._echo, GPIO.IN)
 
         # set sound speed
         self._speed = 331.5 + 0.607 * temperature
@@ -42,6 +51,12 @@ class UltrasonicSensor:
     def measure(self):
         """TODO"""
         # set Trigger to HIGH for 10 microseconds
+
+        # WARNING here
+        # When not running on a raspberry pi, we just return a random value.
+        if not RPI:
+            return random.uniform(0, 3)
+
         GPIO.output(self.trig, GPIO.HIGH)
         time.sleep(0.00001)
         GPIO.output(self.trig, GPIO.LOW)
