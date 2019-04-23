@@ -15,13 +15,16 @@ import os
 
 import bcrypt
 import mysql.connector
-import RPi.GPIO as GPIO
 import tornado.escape
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
 from tornado import gen
+try:
+    import RPi.GPIO as GPIO
+except RuntimeError as e:
+    raise RuntimeError("{} \n==> Run the file 'server_demo_no_gpio.py' for a demo of the webserver without a Raspberry Pi.".format(e))
 
 from inout.ultrasonic import UltrasonicSensor
 from inout.relay import Relay
@@ -57,10 +60,10 @@ def parse_args():
         help="Path to the file containing the secret cookie string.")
 
     # Raspberry
-    rpi = parser.add_argument_group("Raspberry.")
-    rpi.add_argument("--pinconfig", type=str, default="./config/pins.json",
+    system = parser.add_argument_group("System.")
+    system.add_argument("--pinconfig", type=str, default="./config/pins.json",
         help="Path to the pins configuration file (default: './config/pins.json').")
-    rpi.add_argument("--temperature", type=int, default=20,
+    system.add_argument("--temperature", type=int, default=20,
         help="Temperaturen in Celsius, to compute sound speed (default: 20°C).")
 
     # Water container
