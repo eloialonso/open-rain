@@ -4,11 +4,13 @@
 <nav id=nav_user>
   <ul class="nav">
     {% if admin %}
-    <li><a href="/auth/create?next={{ url_escape(request.uri) }}">Créer utilisateur</a></li>
+    <li><a href="/auth/create?next={{ url_escape(request.uri) }}">Create user</a></li>
     {% end %}
-    <li><a href="/">Pilotage</a></li>
+    <li><a href="/">Home</a></li>
+    <!--
     <li><a href="/">Webcam</a></li>
     <li><a href="/">Statistiques </a></li>
+    -->
   </ul>
 </nav>
 {% end %}
@@ -25,12 +27,11 @@
     <form action="/auth/create" method="POST">
       {% module xsrf_form_html() %}
       <p>
-        <label for="username">Identifiant</label> :  <input type="text" name="username" id="username" placeholder="Entrer le nouvel identifiant"><br/>
-        <label for="first_name">Prénom</label> : <input type="text" name="first_name" id="first_name" placeholder="Entrer le prénom"><br/>
-        <label for="last_name">Nom</label> : <input type="text" name="last_name" id="last_name" placeholder="Entrer le nom"><br/>
-        <label for="password">Mot de passe</label> : <input type="password" name="password" id="password" placeholder="Entre le mot de passe"><br/>
-        <label for="password2">Confirmer le mot de passe</label> : <input type="password" name="password2" id="password2" placeholder="Confirmer le mot de passe"><br/>
-        <input type="submit" value="Créer utilisateur" />
+        <label for="username">Login</label> :  <input type="text" name="username" id="username" placeholder="Enter the new login"><br/>
+        <label for="password">Password</label> : <input type="password" name="password" id="password" placeholder="Enter the new password"><br/>
+        <label for="password2">Confirm password</label> : <input type="password" name="password2" id="password2" placeholder="Confirm password"><br/>
+        <label for="admin">Admin user</label> : <input type="radio" name="admin" id="admin" unchecked><br/>
+        <input type="submit" value="Create user" />
       </p>
     </form>
   </div>

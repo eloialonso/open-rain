@@ -1,4 +1,4 @@
-<!--Page d'accueil pour utilisateur normal-->
+<!--Home page -->
 
 {% extends "base.html" %}
 
@@ -6,11 +6,13 @@
 <nav id=nav_user>
   <ul class="nav">
     {% if admin %}
-    <li><a href="/auth/create?next={{ url_escape(request.uri) }}">Créer utilisateur</a></li>
+    <li><a href="/auth/create?next={{ url_escape(request.uri) }}">Create user</a></li>
     {% end %}
-    <li><a href="/">Pilotage</a></li>
+    <li><a href="/">Home</a></li>
+    <!--
     <li><a href="/">Webcam</a></li>
     <li><a href="/">Statistiques </a></li>
+    -->
   </ul>
 </nav>
 {% end %}
@@ -19,7 +21,7 @@
 
   <!-- Sensor -->
   <div class="pilotage">
-    <input type="button" class="sensor" id="button_measure" value="Mesurer">
+    <input type="button" class="sensor" id="button_measure" value="Measure">
     <h2 id="measure_value">...</h2>
   </div>
 
@@ -34,7 +36,7 @@
       {% end %}
       <span class="slider round"></span>
       </label>
-      <h2>arrosage n°{{id}}</h2>
+      <h2>Watering circuit n°{{id}}</h2>
     </div>
   {% end %}
 

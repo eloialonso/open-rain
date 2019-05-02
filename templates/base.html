@@ -11,7 +11,7 @@
     <div id="body_page">
 
       <header>
-        <div id="titre_principal">
+        <div id="main_title">
           <div id="logo">
             <h1><a href="/">Open Pluie</a></h1>
             <img src="{{ static_url('images/logo.png') }}" alt="Logo openpluie" />
@@ -28,7 +28,7 @@
 
       <footer>
         {% if current_user %}
-          <a id="logout" href="/auth/logout?next={{ url_escape(request.uri) }}">Déconnexion</a>
+          <a id="logout" href="/auth/logout?next={{ url_escape(request.uri) }}">Logout</a>
         {% end %}
       </footer>
 
