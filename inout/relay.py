@@ -1,7 +1,10 @@
 # coding: utf-8
 
 
-"""Module to use a Relay Card with Raspberry Pi"""
+"""Module to use a Relay Card with Raspberry Pi.
+
+If not run on a RPi, the behaviour is simulated and there is no real, hardware change such as pin writing.
+"""
 
 
 import time
@@ -16,9 +19,19 @@ else:
 
 
 class Relay:
-    """TODO"""
+    """Class to define that a specific GPIO pin is a relay.
+
+    Methods to close, open, reverse the relay and to read its state.
+    """
+
     def __init__(self, pin):
-        """TODO"""
+        """Initialization function.
+        Set the pin as an output, and initialize it to HIGH (open relay)/
+
+        Args:
+            pin: The pin number of the relay.
+        """
+
         self._pin = pin
 
         # Set pin as out
