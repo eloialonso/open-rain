@@ -2,7 +2,12 @@
 # coding: utf-8
 
 
-"""Script to run the web server."""
+"""Script to run the web server.
+
+WARNING: this script is supposed to be run on a Raspberry Pi.
+However, it is possible to run a demo on a computer.
+In this case, the behaviour is simulated, in the sense that there will be no real, hardware change such as pin writing/reading.
+"""
 
 
 import argparse
