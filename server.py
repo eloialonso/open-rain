@@ -2,7 +2,7 @@
 # coding: utf-8
 
 
-"""TODO"""
+"""Script to run the web server."""
 
 
 import argparse
@@ -34,6 +34,7 @@ except RuntimeError as e:
 else:
     RPI = True
 
+
 # Logging setup
 logFormatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s'")
 rootLogger = logging.getLogger()
@@ -59,44 +60,38 @@ def parse_args():
     # Server
     server = parser.add_argument_group("Server.")
     server.add_argument("--port", type=int, default=9080,
-        help="Port to run the server on (default: 9080)")
+        help="Port to run the server on (default: %(default)d).")
     server.add_argument("--cookie_secret", type=str, default="./config/cookie.secret",
-        help="Path to the file containing the secret cookie string.")
+        help="Path to the file containing the secret cookie string (default: %(default)s).")
 
     # Raspberry
     system = parser.add_argument_group("System.")
     system.add_argument("--pinconfig", type=str, default="./config/pins.json",
-        help="Path to the pins configuration file (default: './config/pins.json').")
+        help="Path to the pins configuration file (default: %(default)s).")
     system.add_argument("--temperature", type=int, default=20,
-        help="Temperaturen in Celsius, to compute sound speed (default: 20°C).")
+        help="Temperaturen in Celsius, to compute sound speed (default: %(default)d).")
 
     # Water container
     db = parser.add_argument_group("Water container.")
     db.add_argument("--height", type=float, default=3,
-        help="Height of the water container, in meters.")
+        help="Height of the water container, in meters (default: %(default)d).")
     db.add_argument("--diameter", type=float, default=1,
-        help="Diameter of the water container, in meters.")
+        help="Diameter of the water container, in meters (default: %(default)d).")
 
     # Database
     db = parser.add_argument_group("SQL Database.")
     db.add_argument("--sqlhost", default="127.0.0.1",
-        help="Database host (default: 127.0.0.1)."),
+        help="Database host (default: %(default)s)."),
     db.add_argument("--sqlport", type=int, default=3306,
-        help="Database port.")
+        help="Database port (default: %(default)d).")
     db.add_argument("--sqldb", default="openpluie",
-        help="Database name (default: 'openpluie').")
-    db.add_argument("--sqluser", default="eloi",
-        help="Database user (default: 'eloi').")
+        help="Database name (default: %(default)s).")
+    db.add_argument("--sqluser", default="admin_openpluie",
+        help="Database user (default: %(default)s).")
 
     return parser.parse_args()
 
 
-def load_pin_config(path):
-    """Load the pin config file and check it"""
-    with open(path, "r") as f:
-        pins = json.load(f)
-    assert sorted(pins.keys()) == sorted(["relay", "trigger", "echo"])
-    return pins
 
 
 def admin(method):
@@ -107,6 +102,14 @@ def admin(method):
             raise tornado.web.HTTPError(403)("Denied: you are not admin.")
         return method(self, *args, **kwargs)
     return wrapper
+
+
+def load_pin_config(path):
+    """Load the pin config file and check it"""
+    with open(path, "r") as f:
+        pins = json.load(f)
+    assert sorted(pins.keys()) == sorted(["relay", "trigger", "echo"])
+    return pins
 
 
 def gpio(function):
@@ -130,7 +133,16 @@ def gpio(function):
 
 class Application(tornado.web.Application):
     def __init__(self, cookie_secret, sql_config, sensor, relays, water_container):
-        """TODO"""
+        """Application, handle routing, connect to the database, handle hardware (relays and sensor).
+
+        Args:
+            cookie_secret: A string containing the secret cookie.
+            sql_config: The dictionary containing the information to connect to the SQL database.
+            sensor: The ultrasonic sensor.
+            relays: The relays.
+            water_container: The geometry of the water container (height and width).
+        """
+        # Routing
         handlers = [
             (r"/", HomeHandler),
             (r'/ws', WSHandler),
@@ -151,14 +163,14 @@ class Application(tornado.web.Application):
 
         super(Application, self).__init__(handlers, **settings)
 
-        # Hardware: ultrasonic sensor and relays
+        # Input / output: ultrasonic sensor and relays
         self.relays = relays
         self.sensor = sensor
 
         # Water container
         self.water_container = water_container
 
-        # Have one global connection to the database across all handlers
+        # Connect to the MySQL database
         self.database = mysql.connector.connect(
             host=sql_config["host"],
             port=sql_config["port"],
@@ -183,7 +195,7 @@ class Application(tornado.web.Application):
 
 
 class BaseHandler(tornado.web.RequestHandler):
-    """TODO"""
+    """Base handler. The other handlers inheritates from it."""
     @property
     def cursor(self):
         return self.application.cursor
@@ -212,70 +224,89 @@ class BaseHandler(tornado.web.RequestHandler):
         return bool(self.cursor.fetchall())
 
     def user_is_admin(self):
+        """Check that the current user is admin or not."""
         user = self.get_current_user()
         if user:
-            _, username, first_name, last_name, _ = user
-            return username == 'admin' and first_name == "Eloi" and last_name == "Alonso"
+            _, admin, username, _ = user
+            return bool(admin)
         return False
 
 
 class HomeHandler(BaseHandler):
-    """TODO"""
-    @tornado.web.authenticated # this decorator redirects the user the login_url if he is not authenticated
+    """Handle home page."""
+    @tornado.web.authenticated # this decorator redirects the user to the login_url if he is not authenticated
     def get(self):
-        _, username, _, _, _ = self.get_current_user()
+        _, _, username, _ = self.get_current_user()
         logging.info("[HTTP](MainHandler) {} connected.".format(username))
         self.render("home.html", admin=self.user_is_admin(), relay_state=self.relay_state)
 
 
 class AuthCreateHandler(BaseHandler):
-    """TODO"""
+    """Handle user creation (admin only)."""
     @admin
     def get(self):
         self.render("create_user.html", admin=self.user_is_admin(), error=None)
 
     @gen.coroutine
     def post(self):
+        """Receive the information on a new user and insert it in the database."""
+
+        # Check that the user does not exist
+        username = self.get_argument("username")
+        self.cursor.execute("SELECT * FROM users WHERE username = '%s';", username)
+        if bool(self.cursor.fetchall()):
+            self.render("create_user.html", error="user already created, please choose another username.")
+            return
+
+        # Hash the two passwords
         hashed_password = yield executor.submit(
             bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
             bcrypt.gensalt())
         hashed_password2 = yield executor.submit(
             bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password2")),
             bcrypt.gensalt())
-        username = self.get_argument("username")
-        self.cursor.execute("SELECT * FROM users WHERE username = %s", username)
-        if bool(self.cursor.fetchall()):
-            self.render("create_user.html", error="user already created, please choose another username.")
-            return
+
+        # Check that the two passwords are identical
         if self.get_argument("password") != self.get_argument("password2"):
             self.render("create_user.html", error="Passwords are different.")
             return
 
-        # insert query
-        sql = "INSERT INTO users (username, first_name, last_name, hashed_password) VALUES (%s, %s, %s, %s)"
-        val = (username, self.get_argument("first_name"), self.get_argument("last_name"), hashed_password)
+        # Check admin
+        admin = True if "admin" in self.request.arguments and self.get_argument("admin") == "on" else False
+
+        # Insert the new user in the database
+        sql = "INSERT INTO users (admin, username, hashed_password) VALUES (%s, %s, %s)"
+        val = (admin, username, hashed_password)
         self.cursor.execute(sql, val)
-        self.database.commit()
+        self.application.database.commit()
 
         self.redirect(self.get_argument("next", "/"))
 
 
 class AuthLoginHandler(BaseHandler):
-    """TODO"""
+    """Handle login."""
     def get(self):
         self.render("login.html", error=None)
 
     @gen.coroutine
     def post(self):
+
+        # Get user name and check that it exists
         self.cursor.execute("SELECT * FROM users WHERE username = '{}'".format(self.get_argument("username")))
         user = self.cursor.fetchone()
         if not user:
             self.render("login.html", error="username not found")
             return
-        user_id, _, _, _, true_hash = user
+
+        # Get password and hash it
+        user_id, admin, username, true_hash = user
+        # user_id, _, _, _, true_hash = user
+
         hashed_password = yield executor.submit(
             bcrypt.hashpw, tornado.escape.utf8(self.get_argument("password")),
             tornado.escape.utf8(true_hash))
+
+        # Check that the password is correct
         if bytes(true_hash, "utf-8") == hashed_password:
             self.set_secure_cookie("user", str(user_id), expires_days=None)
             self.redirect(self.get_argument("next", "/"))
@@ -284,7 +315,8 @@ class AuthLoginHandler(BaseHandler):
 
 
 class AuthLogoutHandler(BaseHandler):
-    """TODO"""
+    """Handle logout."""
+
     @tornado.web.authenticated
     def get(self):
         self.clear_cookie("user")
@@ -292,8 +324,10 @@ class AuthLogoutHandler(BaseHandler):
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
-    """Handles web sockets for bidirectional communication between server and client."""
+    """Handle web sockets for bidirectional communication between server and client."""
+
     def open(self):
+        """Function called when the socket is opened."""
         user_id = self.get_secure_cookie("user")
         if not user_id:
             return None
@@ -325,17 +359,19 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             raise tornado.web.HTTPError(404)("Unknown WS message: {}".format(message))
 
     def on_close(self):
+        """Function called when closing the socket."""
         logging.info('[WS] Connection was closed.')
 
 
 def main():
+    """Main function to run the server."""
 
     # Parse command line
     args = parse_args()
 
     # Cookie secret
     if not os.path.exists(args.cookie_secret):
-        raise RuntimeError("'{}' not found. Please define a secret cookie and provide its path through --cookie_secret argument.".format(args.cookie_secret))
+        raise RuntimeError("'{}' not found. Please define a file containing your secret cookie and provide its path through the --cookie_secret argument.".format(args.cookie_secret))
     with open(args.cookie_secret, "r") as f:
         cookie_secret = f.read()
 
@@ -362,7 +398,7 @@ def main():
     }
 
     # Database config
-    sql_password = getpass("Database password: ")
+    sql_password = getpass("Password for MySQL user '{}': ".format(args.sqluser))
     sql_config = {"host": args.sqlhost, "port": args.sqlport, "database": args.sqldb, "user": args.sqluser, "password": sql_password}
 
     try:
