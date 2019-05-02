@@ -7,6 +7,9 @@
 WARNING: this script is supposed to be run on a Raspberry Pi.
 However, it is possible to run a demo on a computer.
 In this case, the behaviour is simulated, in the sense that there will be no real, hardware change such as pin writing/reading.
+
+WARNING: this script connects to a MySQL database ('openpluie') containing the users for the website.
+Make sure to run 'python mysql_setup.py' before the first time to create the database and properly initialize itss.
 """
 
 
@@ -95,8 +98,6 @@ def parse_args():
         help="Database user (default: %(default)s).")
 
     return parser.parse_args()
-
-
 
 
 def admin(method):
