@@ -11,8 +11,14 @@ $(document).ready(function(){
         var ws = new WebSocket("wss://" + window.location.host + WEBSOCKET_ROUTE);
         }
 
+    /* Function called when the socket is opened. */
     ws.onopen = function(evt) {
         $("#ws-status").html("Connected");
+    };
+
+    /* Function called when the socket is closed. */
+    ws.onclose = function(evt) {
+        $("#ws-status").html("Disconnected");
     };
 
     /* Function called when the socket receives a message */
@@ -20,17 +26,13 @@ $(document).ready(function(){
         // Parse input dictionary
         var messageDict = JSON.parse(evt.data);
 
-        // Sensor measure
+        // Sensor measure: display the received value
         if (messageDict.type == "sensor_measure") {
             $("#measure_value").html(messageDict.value + " L")
         }
     };
 
-    ws.onclose = function(evt) {
-        $("#ws-status").html("Disconnected");
-    };
-
-    /* Called when touching a slider (to switch relay state) */
+    /* When a slider is modified, send a message in the socket. */
     $('.relay').change(function() {
 
         if (this.checked) {
@@ -41,38 +43,23 @@ $(document).ready(function(){
 
     });
 
-
-// var myVar = setInterval(myTimer, 1000);
-
-// function myTimer() {
-//   var d = new Date();
-//   var t = d.toLocaleTimeString();
-//   document.getElementById("demo").innerHTML = t;
-// }
-
-// function myStopFunction() {
-//   clearInterval(myVar);
-// }
-
-
-
-    /* Called when clicking on the measure button */
+    /* Measure button */
     var measureInterval = null;
     var measureButton = document.getElementById("button_measure");
-    measureButton.addEventListener("click", StartMeasure);
+    measureButton.addEventListener("click", startMeasure);
 
-    function StartMeasure(){
+    function startMeasure(){
         measureInterval = setInterval(function(){ws.send("do_measure");}, 1500);
-        measureButton.removeEventListener("click", StartMeasure);
-        measureButton.addEventListener("click", StopMeasure);
+        measureButton.removeEventListener("click", startMeasure);
+        measureButton.addEventListener("click", stopMeasure);
         measureButton.value = "Stop";
     }
 
-    function StopMeasure(){
+    function stopMeasure(){
         clearInterval(measureInterval);
-        measureButton.removeEventListener("click", StopMeasure);
-        measureButton.addEventListener("click", StartMeasure);
-        measureButton.value = "Mesurer";
+        measureButton.removeEventListener("click", stopMeasure);
+        measureButton.addEventListener("click", startMeasure);
+        measureButton.value = "Measure";
     }
 
 });

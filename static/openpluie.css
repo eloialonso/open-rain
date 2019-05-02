@@ -1,29 +1,29 @@
-/*Feuille de style pour Open Pluie*/
+/* Stylesheet for Open Pluie. */
 
-/*Nouvelle police (lato) pour tout le site*/
+/* Load fonts */
 @font-face {
     font-family: 'Lato';
-    src: url('./lato/Lato-Light.ttf');
+    src: url('./fonts/Lato-Light.ttf');
 }
 @font-face {
     font-family: 'LatoBlack';
-    src: url('./lato/Lato-Black.ttf');
+    src: url('./fonts/Lato-Black.ttf');
 }
 @font-face {
     font-family: 'alpha';
-    src: url('./alpha/alpha_echo.ttf');
+    src: url('./fonts/alpha_echo.ttf');
 }
 
 /*Background image*/
 html {
-  background: url(images/bg.jpg) no-repeat center center fixed;
+  background: url(images/background.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
 }
 
-/*Tout le site en lato par défault*/
+/* Default font: lato */
 #body_page
 {
   font-family: 'Lato', 'Arial', 'sans-serif';
@@ -31,7 +31,7 @@ html {
   margin: auto;
 }
 
-/*Erreurs d'authentification*/
+/* Authentification errors */
 .auth_error
 {
   font-family: 'LatoBlack';
@@ -44,7 +44,7 @@ html {
   color: black;
 }
 
-/*style des liens*/
+/* Links */
 a
 {
   text-decoration: none;
@@ -52,26 +52,27 @@ a
 }
 
 
-/*bannière de fond header et logo*/
+/* Head banner */
 header
 {
   width: 800px;
   height: 200px;
   position: relative;
   border-radius: 5px;
-  background: url('images/fond.jpg') no-repeat;
+  background: url('images/banner.png') no-repeat;
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: absolute;
 }
 
+/* Main title in the head banner*/
 header h1
 {
   font-family: 'alpha';
   font-size: 50px;
 }
 
-#titre_principal
+#main_title
 {
   position: absolute;
   top : 10px;
@@ -130,7 +131,7 @@ nav a:hover
 }
 
 
-/*footer and logout*/
+/* Footer and logout */
 footer
 {
   width:800px;
@@ -159,7 +160,7 @@ footer
   opacity: 0.5;
 }
 
-/*Formulaire de login*/
+/* Login form */
 @import url(https://fonts.googleapis.com/css?family=Exo:100,200,400);
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:700,400,300);
 
@@ -291,7 +292,10 @@ footer
    color: rgba(255,255,255,0.6);
 }
 
-/* Pilotage de la RPI */
+
+/* Slider */
+
+/* Background rounded rectangle */
 .switch {
   position: relative;
   display: inline-block;
@@ -308,11 +312,12 @@ footer
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #cccccc;
   -webkit-transition: .4s;
   transition: .4s;
 }
 
+/* Round in the slider */
 .slider:before {
   position: absolute;
   content: "";
@@ -325,14 +330,12 @@ footer
   transition: .4s;
 }
 
+/* Move the slider color to green when clicking on it */
 input:checked + .slider {
   background-color: #00AA57;
 }
 
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
+/* Move the slider to the right when clicking on it */
 input:checked + .slider:before {
   -webkit-transform: translateX(60px);
   -ms-transform: translateX(60px);
