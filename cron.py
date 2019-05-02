@@ -4,6 +4,8 @@
 
 """
 Script to water the plants. To be run periodically with cron.
+
+WARNING: this script can be run on a Raspberry Pi only.
 """
 
 
@@ -92,7 +94,7 @@ def gpio(function):
 
 def water_level(water_container, sensor_value):
     """Computes volume based on sensor mesure and geometry of the water container.
-    
+
     Args:
         water_container: Dictionary containing the geometry of the container (height, diameter) in meters.
         sensor_value: Measurement in meters.
@@ -106,7 +108,7 @@ def water_level(water_container, sensor_value):
 @gpio
 def main():
     """Main function to water plants."""
-    
+
     # Log a new line for readability
     log.info("\n\n### New call ###\n")
 
@@ -129,7 +131,7 @@ def main():
             relays[int(id)] = None
             continue
         relays[int(id)] = Relay(pin)
-    
+
     # The valve is a specific relay
     valve = relays[args.valve_relay]
 
@@ -177,25 +179,25 @@ def main():
         time.sleep(10)
         new_measure = sensor.median_measure(rep=21)             # Do measure
         new_volume = water_level(water_container, new_measure)  # Convert it in a volume in liters
-        
-        # Check that the desired volume is reached 
+
+        # Check that the desired volume is reached
         if volume - new_volume > args.liters:
             counter_stop += 1
         else:
             counter_stop = 0
-        
+
         # Time limit to prevent from accidentally emptying the container
         if time.time() - start_time > args.time_limit:
             log.warning("[SECURITY] Time limit reached, stopping watering.")
             break
 
         log.info("[VOLUME] {:.2f} L / {:.4f} cm (while watering).".format(new_volume, new_measure))
-    
+
     # Stop watering.
     valve.open()
     log.info("[WATERING] Stopping. {:.2f} L used. Watered during {} seconds.".format(volume - new_volume, time.time() - start_time))
     log.info("[VOLUME] {:.2f} L / {:.4f} cm (after watering).".format(new_volume, new_measure))
-    
+
 
 if __name__ == "__main__":
     main()
