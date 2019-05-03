@@ -92,7 +92,7 @@ def main():
 
     # Exiting
     connection.commit()
-    print("\nExiting.")
+    print("\nDone.")
     cursor.close()
     connection.close()
     return
