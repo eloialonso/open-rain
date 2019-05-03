@@ -9,10 +9,10 @@ Homemade irrigation system with a Raspberry Pi, with two options:
 
 **Table of contents**
 
-[Getting started](#getting-started)
-- [Basic installation](#basic-installation)
-- [MySQL server](#mysql-server)
-- [Secret cookie](#secret-cookie)
+- [Getting started](#getting-started)
+   - [Basic installation](#basic-installation)
+   - [MySQL server](#mysql-server)
+   - [Secret cookie](#secret-cookie)
 
 ## Installation
 
