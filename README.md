@@ -1,4 +1,7 @@
-<h1><img src="./static/images/logo.png" width="60" height="60">Open Pluie</h1>
+<p align="center">
+<img src="./static/images/logo.png" width="100" height="100">
+<h1 align="center">Open Pluie</h1>
+</p>
 
 Homemade irrigation system with a Raspberry Pi, with two options:
 1. Custom regular watering with a [cron](https://en.wikipedia.org/wiki/Cron) job.
