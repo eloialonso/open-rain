@@ -78,7 +78,7 @@ Main components:
 - A [relay module](https://www.amazon.com/JBtek-Channel-Module-Arduino-Raspberry/dp/B00KTELP3I?ref_=fsclp_pl_dp_1).
 - An [ultrasonic sensor](https://www.amazon.com/SainSmart-HC-SR04-Ranging-Detector-Distance/dp/B004U8TOE6/ref=sr_1_5?keywords=hcsr04&qid=1556912786&s=gateway&sr=8-5).
 
-<img src="./static/images/schema.png" width="250" height="200" />
+<img src="./static/images/schema.png" width="750" height="600" align="center" />
 
 ## Demo of the web interface (on a standard computer)
 
