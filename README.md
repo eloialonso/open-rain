@@ -1,18 +1,27 @@
 <p align="center">
-<img src="./static/images/logo.png" width="100" height="100">
-<h1 align="center">Open Pluie</h1>
+   <img src="./static/images/logo.png" width="100" height="100" align="center">
 </p>
+<h1 align="center">Open Pluie</h1>
 
 Homemade irrigation system with a Raspberry Pi, with two options:
-1. Custom regular watering with a [cron](https://en.wikipedia.org/wiki/Cron) job.
-2. On demand watering via a web interface.
+<ol>
+   <li> Custom regular watering with a <a href="https://en.wikipedia.org/wiki/Cron">cron</a> job.
+   <li> On demand watering via a web interface.
+</ol>
+
+
+**Remark**: This project is supposed to be run on a Raspberry Pi. On a standard computer, you can still run a demo of the web interface.
+
 
 **Table of contents**
 
-- [Getting started](#getting-started)
+- [Installation](#Installation)
    - [Basic installation](#basic-installation)
    - [MySQL server](#mysql-server)
    - [Secret cookie](#secret-cookie)
+
+
+
 
 ## Installation
 
@@ -58,3 +67,19 @@ touch ./config/cookie.secret
 ```
 
 Edit this file and write a long random sequence of characters on the first line.
+
+
+
+## Hardware
+
+Main components:
+
+- A [solenoid valve](https://www.amazon.com/d/Electronic-Drums/2W-200-20-AC220V-4inch-Electric-Solenoid/B073LS9QPX).
+- A [relay module](https://www.amazon.com/JBtek-Channel-Module-Arduino-Raspberry/dp/B00KTELP3I?ref_=fsclp_pl_dp_1).
+- An [ultrasonic sensor](https://www.amazon.com/SainSmart-HC-SR04-Ranging-Detector-Distance/dp/B004U8TOE6/ref=sr_1_5?keywords=hcsr04&qid=1556912786&s=gateway&sr=8-5).
+
+<img src="./static/images/schema.png" width="250" height="200" />
+
+## Demo of the web interface (on a standard computer)
+
+## On a Raspberry Pi
