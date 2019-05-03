@@ -8,4 +8,4 @@ scripts/*
 *.secret
 
 # Schemas
-./schemas/*
+schemas/*
