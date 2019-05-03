@@ -7,3 +7,5 @@ scripts/*
 # Don't track secret cookie, etc.
 *.secret
 
+# Schemas
+./schemas/*
