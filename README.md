@@ -10,7 +10,7 @@ Homemade irrigation system with a Raspberry Pi, with two options:
 </ol>
 
 
-**Remark**: This project is supposed to be run on a Raspberry Pi. On a standard computer, you can still run a [demo](#standard-computer-demo-of-the-web-interface) of the web interface.
+**Remark**: This project is supposed to be run on a Raspberry Pi. On a standard computer, you can still run a [demo](#standard-computer) of the web interface.
 
 
 **Table of contents**
@@ -113,39 +113,41 @@ If you have a module with multiple relays, you can build several independent irr
 
 ## Option 2: on demand watering via a web interface
 
+To run the web interface, type:
+
 ```bash
 python server.py
 ```
 
 It will prompt for the password of the MySQL `admin_openpluie` user, that you defined when using the `mysql_setup.py` script in [this section](#mysql-server).
 
-In your browser, type `localhost:9080` to access the browser.
+In your browser, type `localhost:9080` to access the website.
 
-For the first time, use the user `admin` with the password you defined when using the `mysql_setup.py` script.
+For the first time, enter the user `admin` with the password you defined when using the `mysql_setup.py` script.
 
-Once logged in, you can use the `create user` section to add a new user to the database.
+Once logged in, you can resort to the `create user` section to add a new user to the database.
 
-**Options**
+### Options
 
 - You can specify the dimensions of your (cylindrical) water container with the options `--height` and `--diameter`.
 - You can change the port with the `--port` option.
 
 Type `python server.py -h` to see all the options.
 
-**Hosting the website**
+### Hosting the website
 
-You can then do port forwarding on your router to host the website on your raspberry and make it accessible from the internet.
+You can then do port forwarding on your router to host the website on your Raspberry Pi and make it accessible from the internet.
 
 ### Raspberry Pi
 
 When running this script on a Raspberry Pi:
 
-- The slider `Watering circuit n°1` button will change the state of the GPIO pin corresponding to the relay (specified in `config/pins.json`, see [this section](#pin-configuration)).
-- The `measure` button will act on the GPIO pin corresponding to the trigger / echo pins of the sensor to measure the remaining volume of water in the container.
+- The slider `Watering circuit n°1` button will change the state of the relay to start / stop watering.
+- The `measure` button will measure the remaining volume of water in the container.
 
-### Standard computer: demo of the web interface
+### Standard computer
 
-When running this script on a standard computer, as there is no GPIO pins, the behaviour is simulated. In particular:
+When running this script on a computer, as there is no GPIO pins, the behaviour is simulated. In particular:
 
 - The slider `Watering circuit n°1` button will move but does nothing concrete.
 - The `measure` button will provide random values.
