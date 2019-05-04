@@ -111,6 +111,27 @@ If you have a module with multiple relays, you can build several independent irr
 
 ## Option 1: custom regular watering with a cron job
 
+If your Raspberry Pi doesn't have access to the internet, or if you want to automate the watering, you can use the script `cron.py`, with the job scheduler of your OS, for instance <a href="https://en.wikipedia.org/wiki/Cron">cron</a> for Unix-like systems.
+
+Type `crontab -e` to edit the cron jobs.
+
+A standard line
+
+┌───────────── minute (0 - 59)
+│ ┌───────────── hour (0 - 23)
+│ │ ┌───────────── day of the month (1 - 31)
+│ │ │ ┌───────────── month (1 - 12)
+│ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday;
+│ │ │ │ │                                   7 is also Sunday on some systems)
+│ │ │ │ │
+│ │ │ │ │
+`* * * * * command to execute`
+A line in crontab looks like:
+
+With the five stars corresponding to:
+
+1. minute ()
+
 ## Option 2: on demand watering via a web interface
 
 To run the web interface, type:
