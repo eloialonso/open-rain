@@ -155,7 +155,7 @@ To run the web interface, type:
 python server.py
 ```
 
-It will prompt for the password of the MySQL `admin_openpluie` user, that you defined when using the `mysql_setup.py` script in [this section](#mysql-server).
+It will prompt for the password of the MySQL `admin_openpluie` user, that you defined when using the `mysql_setup.py` script in [MySQL server](#mysql-server) section.
 
 In your browser, type `localhost:9080` to access the website.
 
