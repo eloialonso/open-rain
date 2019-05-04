@@ -10,7 +10,7 @@ Homemade irrigation system with a Raspberry Pi, with two options:
 </ol>
 
 
-**Remark**: This project is supposed to be run on a Raspberry Pi. On a standard computer, you can still run a demo of the web interface.
+**Remark**: This project is supposed to be run on a Raspberry Pi. On a standard computer, you can still run a [demo](#standard-computer-demo-of-the-web-interface) of the web interface.
 
 
 **Table of contents**
@@ -18,7 +18,7 @@ Homemade irrigation system with a Raspberry Pi, with two options:
 - [Installation](#Installation)
    - [Basic installation](#basic-installation)
    - [MySQL server](#mysql-server)
-   - [Secret cookie](#secret-cookie)
+   - [Secret key for authentication](#secret-key-for-authentication)
 
 
 
@@ -35,13 +35,15 @@ git clone https://github.com/bloodymosquito/open-pluie.git
 cd open-pluie
 ```
 
-Create a python3 virtual environment with [virtualenv](https://pypi.org/project/virtualenv/) and activate it. For instance, create it in `~/.virtualenvs/openrain/`:
+This project use python3 with the libraries listed in [requirements.txt](./requirements.txt).
+
+For instance, you may create a python3 virtual environment with [virtualenv](https://pypi.org/project/virtualenv/):
 ```bash
 virtualenv -p python3 ~/.virtualenvs/openrain
 source ~/.virtualenvs/openrain/bin/activate
 ```
 
-Install the requirements for this project:
+And install the requirements for this project:
 ```bash
 pip install -r requirements.txt
 ```
@@ -59,27 +61,34 @@ python mysql_setup.py
 ```
 It creates a MySQL user called `admin_openpluie`, a database called `openpluie`, containing a table `users` containing the `admin` user for the website.
 
-### Secret cookie
+### Secret key for authentication
 
-Create a secret cookie for the web server:
-```bash
-touch ./config/cookie.secret
-```
-
-Edit this file and write a long random sequence of characters on the first line.
+The web server use a secret key for authentication and security. Create the text file `./config/cookie.secret`, and write a long random sequence of characters on the first line.
 
 
+## Irrigation system
 
-## Hardware
+### Main hardware components
 
-Main components:
-
+- A [Raspberry Pi](https://www.raspberrypi.org/).
 - A [solenoid valve](https://www.amazon.com/d/Electronic-Drums/2W-200-20-AC220V-4inch-Electric-Solenoid/B073LS9QPX).
 - A [relay module](https://www.amazon.com/JBtek-Channel-Module-Arduino-Raspberry/dp/B00KTELP3I?ref_=fsclp_pl_dp_1).
 - An [ultrasonic sensor](https://www.amazon.com/SainSmart-HC-SR04-Ranging-Detector-Distance/dp/B004U8TOE6/ref=sr_1_5?keywords=hcsr04&qid=1556912786&s=gateway&sr=8-5).
+- Two resistors (1000 and 2000 ohms): we use a voltage divider to reduce the ultrasonic sensor's 5V output to 3.3V (for the Raspberry Pi).
+- A water container, filled with rainwater.
+- Drip irrigation material.
 
-<img src="./static/images/schema.png" width="750" height="600" align="center" />
+### Schema of the whole system
 
-## Demo of the web interface (on a standard computer)
+<p align="center">
+   <img src="./static/images/schema.png" width="750" height="600" align="center"/>
+   <br/>
+</p>
 
-## On a Raspberry Pi
+## Option 1: custom regular watering with a cron job
+
+## Option 2: on demand watering via a web interface
+
+### Raspberry Pi
+
+### Standard computer: demo of the web interface
