@@ -19,9 +19,17 @@ Homemade irrigation system with a Raspberry Pi, with two options:
    - [Basic installation](#basic-installation)
    - [MySQL server](#mysql-server)
    - [Secret key for authentication](#secret-key-for-authentication)
-
-
-
+- [Irrigation system](#irrigation-system)
+  - [Main hardware components](#main-hardware-components)
+  - [Schema of the whole system](#schema-of-the-whole-system)
+  - [Pin configuration](#pin-configuration)
+- [Option 1: custom regular watering with a cron job](#option-1-custom-regular-watering-with-a-cron-job)
+- [Option 2: on demand watering via a web interface](#option-2-on-demand-watering-via-a-web-interface)
+  - [Options](#options)
+  - [Hosting the website](#hosting-the-website)
+  - [Raspberry Pi](#raspberry-pi)
+  - [Standard computer](#standard-computer)
+- [Access the GPIO pins without root](#access-the-gpio-pins-without-root)
 
 ## Installation
 
@@ -39,8 +47,8 @@ This project use python3 with the libraries listed in [requirements.txt](./requi
 
 For instance, you may create a python3 virtual environment with [virtualenv](https://pypi.org/project/virtualenv/):
 ```bash
-virtualenv -p python3 ~/.virtualenvs/openrain
-source ~/.virtualenvs/openrain/bin/activate
+virtualenv -p python3 ~/.virtualenvs/openpluie
+source ~/.virtualenvs/openpluie/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -181,6 +189,6 @@ When running this script on a computer, as there is no GPIO pins, the behaviour 
 - The `measure` button will provide random values.
 
 
-## Remark: access the GPIO pins without root
+## Access the GPIO pins without root
 
 On a Rapsberry Pi, the scripts `server.py` and `cron.py` should be run as root to access the GPIO pins. You can change it as explained in [this discussion](https://raspberrypi.stackexchange.com/questions/40105/access-gpio-pins-without-root-no-access-to-dev-mem-try-running-as-root/46235).
