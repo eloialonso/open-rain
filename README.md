@@ -41,10 +41,6 @@ For instance, you may create a python3 virtual environment with [virtualenv](htt
 ```bash
 virtualenv -p python3 ~/.virtualenvs/openrain
 source ~/.virtualenvs/openrain/bin/activate
-```
-
-And install the requirements for this project:
-```bash
 pip install -r requirements.txt
 ```
 
@@ -53,12 +49,13 @@ pip install -r requirements.txt
 
 ### MySQL server
 
-To run the web server, you need [MySQL](https://dev.mysql.com/doc/refman/8.0/en/installing.html). You can install it with [this tutorial](https://support.rackspace.com/how-to/installing-mysql-server-on-ubuntu/).
+To run the web server, you need [MySQL](https://dev.mysql.com/doc/refman/8.0/en/installing.html). [Here](https://support.rackspace.com/how-to/installing-mysql-server-on-ubuntu/) is a tutorial to install it on Ubuntu.
 
 Then, setup a MySQL database for the openpluie web server:
 ```bash
 python mysql_setup.py
 ```
+
 It creates a MySQL user called `admin_openpluie`, a database called `openpluie`, containing a table `users` containing the `admin` user for the website.
 
 ### Secret key for authentication
@@ -92,7 +89,7 @@ In the file [`config/pins.json`](./config/pins.json), report the GPIO pins you u
 - The *echo* pin of the ultrasonic sensor (here GPIO24).
 - The *IN* pin of each relay (here GPIO2).
 
-If you have a module with multiple relay, you can build several independent irrigation circuits. In this case, specify all the relays you used. Here is an example with eight relays:
+If you have a module with multiple relays, you can build several independent irrigation circuits. Here is an example of `config/pins.json` with eight relays:
 
 ```json
 {
@@ -116,6 +113,39 @@ If you have a module with multiple relay, you can build several independent irri
 
 ## Option 2: on demand watering via a web interface
 
+```bash
+python server.py
+```
+
+It will prompt for the password of the MySQL `admin_openpluie` user, that you defined when using the `mysql_setup.py` script in [this section](#mysql-server).
+
+In your browser, type `localhost:9080` to access the browser.
+
+For the first time, use the user `admin` with the password you defined when using the `mysql_setup.py` script.
+
+Once logged in, you can use the `create user` section to add a new user to the database.
+
+**Options**
+
+- You can specify the dimensions of your (cylindrical) water container with the options `--height` and `--diameter`.
+- You can change the port with the `--port` option.
+
+Type `python server.py -h` to see all the options.
+
+**Hosting the website**
+
+You can then do port forwarding on your router to host the website on your raspberry and make it accessible from the internet.
+
 ### Raspberry Pi
 
+When running this script on a Raspberry Pi:
+
+- The slider `Watering circuit n°1` button will change the state of the GPIO pin corresponding to the relay (specified in `config/pins.json`, see [this section](#pin-configuration)).
+- The `measure` button will act on the GPIO pin corresponding to the trigger / echo pins of the sensor to measure the remaining volume of water in the container.
+
 ### Standard computer: demo of the web interface
+
+When running this script on a standard computer, as there is no GPIO pins, the behaviour is simulated. In particular:
+
+- The slider `Watering circuit n°1` button will move but does nothing concrete.
+- The `measure` button will provide random values.
