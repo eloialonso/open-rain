@@ -115,22 +115,29 @@ If your Raspberry Pi doesn't have access to the internet, or if you want to auto
 
 Type `crontab -e` to edit the cron jobs.
 
-A standard line
-
-┌───────────── minute (0 - 59)
-│ ┌───────────── hour (0 - 23)
-│ │ ┌───────────── day of the month (1 - 31)
-│ │ │ ┌───────────── month (1 - 12)
-│ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday;
-│ │ │ │ │                                   7 is also Sunday on some systems)
-│ │ │ │ │
-│ │ │ │ │
-`* * * * * command to execute`
-A line in crontab looks like:
+A line in crontab looks like: `* * * * * command to execute`
 
 With the five stars corresponding to:
 
-1. minute ()
+1. minute (0 - 59)
+2. hour (0 - 23)
+3. day of the month (1 - 31)
+4. month (1 - 12)
+5. day of the week (0 - 6)
+
+For instance, to do watering every night at 1 a.m., type:
+
+`0 1 * * * ~/.virtualenvs/openpluie/bin/python /path/to/openpluie/cron.py`
+
+You can add optional arguments (described below) in this line too.
+
+**Options**
+
+- You can specify the number of liters to use with the `--liters` argument (default: 5).
+- If it rained (positive variation of the container volume), then this script won't do watering. You can specify the threshold of detection of a rain (in liters) with the `--rain_volume` argument.
+- There is a limit duration of watering for security, you can modify it via the `--time_limit` argument.
+
+Type `python cron.py -h` to see all the options.
 
 ## Option 2: on demand watering via a web interface
 
@@ -172,3 +179,8 @@ When running this script on a computer, as there is no GPIO pins, the behaviour 
 
 - The slider `Watering circuit n°1` button will move but does nothing concrete.
 - The `measure` button will provide random values.
+
+
+## Remark: access the GPIO pins without root
+
+On a Rapsberry Pi, the scripts `server.py` and `cron.py` should be run as root to access the GPIO pins. You can change it as explained in [this discussion](https://raspberrypi.stackexchange.com/questions/40105/access-gpio-pins-without-root-no-access-to-dev-mem-try-running-as-root/46235).
