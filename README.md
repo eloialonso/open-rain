@@ -85,6 +85,33 @@ The web server use a secret key for authentication and security. Create the text
    <br/>
 </p>
 
+### Pin configuration
+
+In the file [`config/pins.json`](./config/pins.json), report the GPIO pins you used for:
+- The *trigger* pin of the ultrasonic sensor (here GPIO18).
+- The *echo* pin of the ultrasonic sensor (here GPIO24).
+- The *IN* pin of each relay (here GPIO2).
+
+If you have a module with multiple relay, you can build several independent irrigation circuits. In this case, specify all the relays you used. Here is an example with eight relays:
+
+```json
+{
+    "relay":
+    {
+        "1": 2,
+        "2": 3,
+        "3": 4,
+        "4": 17,
+        "5": 27,
+        "6": 22,
+        "7": 10,
+        "8": 9
+    },
+    "trigger": 18,
+    "echo": 24
+}
+```
+
 ## Option 1: custom regular watering with a cron job
 
 ## Option 2: on demand watering via a web interface
