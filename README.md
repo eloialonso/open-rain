@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">Open Pluie</h1>
 
-Homemade irrigation system with a Raspberry Pi, with two options:
+Homemade irrigation system with a Raspberry Pi. Two modes:
 <ol>
    <li> Custom regular watering with a <a href="https://en.wikipedia.org/wiki/Cron">cron</a> job.
    <li> On demand watering via a web interface.
@@ -183,7 +183,7 @@ When running this script on a Raspberry Pi:
 
 ### Standard computer
 
-When running this script on a computer, as there is no GPIO pins, the behaviour is simulated. In particular:
+TO run a demo of the web interface on a computer, type `python server.py`. As there is no GPIO pins, the behaviour is simulated. In particular:
 
 - The slider `Watering circuit n°1` button will move but does nothing concrete.
 - The `measure` button will provide random values.
