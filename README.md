@@ -5,8 +5,8 @@
 
 Homemade irrigation system with a Raspberry Pi. Two modes:
 <ol>
-   <li> Custom regular watering with a <a href="https://en.wikipedia.org/wiki/Cron">cron</a> job.
    <li> On demand watering via a web interface.
+   <li> Custom regular watering with a <a href="https://en.wikipedia.org/wiki/Cron">cron</a> job.
 </ol>
 
 
@@ -23,19 +23,19 @@ Homemade irrigation system with a Raspberry Pi. Two modes:
   - [Main hardware components](#main-hardware-components)
   - [Schema of the whole system](#schema-of-the-whole-system)
   - [Pin configuration](#pin-configuration)
-- [Option 1: custom regular watering with a cron job](#option-1-custom-regular-watering-with-a-cron-job)
-- [Option 2: on demand watering via a web interface](#option-2-on-demand-watering-via-a-web-interface)
+- [Option 1: on demand watering via a web interface](#option-2-on-demand-watering-via-a-web-interface)
   - [Options](#options)
   - [Hosting the website](#hosting-the-website)
   - [Raspberry Pi](#raspberry-pi)
   - [Standard computer](#standard-computer)
+- [Option 2: custom regular watering with a cron job](#option-1-custom-regular-watering-with-a-cron-job)
 - [Access the GPIO pins without root](#access-the-gpio-pins-without-root)
 
 ## Installation
 
 ### Basic installation
 
-**Note**: The basic installation is sufficient to run the first option (regular watering with a cron job, detailed [here](#TODO)).
+**Note**: The basic installation is sufficient to run the second option (regular watering with a cron job, detailed [here](#option-2-custom-regular-watering-with-a-cron-job)).
 
 Clone the project in your current location, and navigate to it:
 ```bash
@@ -52,7 +52,7 @@ source ~/.virtualenvs/openpluie/bin/activate
 pip install -r requirements.txt
 ```
 
-**Note**: For the second option (on demand watering via a web interface), you also need the following steps.
+**Note**: For the first option (on demand watering via a web interface), you also need the following steps.
 
 
 ### MySQL server
@@ -117,37 +117,7 @@ If you have a module with multiple relays, you can build several independent irr
 }
 ```
 
-## Option 1: custom regular watering with a cron job
-
-If your Raspberry Pi doesn't have access to the internet, or if you want to automate the watering, you can use the script `cron.py`, with the job scheduler of your OS, for instance <a href="https://en.wikipedia.org/wiki/Cron">cron</a> for Unix-like systems.
-
-Type `crontab -e` to edit the cron jobs.
-
-A line in crontab looks like: `* * * * * command to execute`
-
-With the five stars corresponding to:
-
-1. minute (0 - 59)
-2. hour (0 - 23)
-3. day of the month (1 - 31)
-4. month (1 - 12)
-5. day of the week (0 - 6)
-
-For instance, to do watering every night at 1 a.m., type:
-
-`0 1 * * * ~/.virtualenvs/openpluie/bin/python /path/to/openpluie/cron.py`
-
-You can add optional arguments (described below) in this line too.
-
-**Options**
-
-- You can specify the number of liters to use with the `--liters` argument (default: 5).
-- If it rained (positive variation of the container volume), then this script won't do watering. You can specify the threshold of detection of a rain (in liters) with the `--rain_volume` argument.
-- There is a limit duration of watering for security, you can modify it via the `--time_limit` argument.
-
-Type `python cron.py -h` to see all the options.
-
-## Option 2: on demand watering via a web interface
+## Option 1: on demand watering via a web interface
 
 To run the web interface, type:
 
@@ -187,6 +157,37 @@ To run a demo of the web interface on a computer, type `python server.py`. As th
 
 - The slider `Watering circuit n°1` button will move but does nothing concrete.
 - The `measure` button will provide random values.
+
+## Option 2: custom regular watering with a cron job
+
+If your Raspberry Pi doesn't have access to the internet, or if you want to automate the watering, you can use the script `cron.py`, with the job scheduler of your OS, for instance <a href="https://en.wikipedia.org/wiki/Cron">cron</a> for Unix-like systems.
+
+Type `crontab -e` to edit the cron jobs.
+
+A line in crontab looks like: `* * * * * command to execute`
+
+With the five stars corresponding to:
+
+1. minute (0 - 59)
+2. hour (0 - 23)
+3. day of the month (1 - 31)
+4. month (1 - 12)
+5. day of the week (0 - 6)
+
+For instance, to do watering every night at 1 a.m., type:
+
+`0 1 * * * ~/.virtualenvs/openpluie/bin/python /path/to/openpluie/cron.py`
+
+You can add optional arguments (described below) in this line too.
+
+**Options**
+
+- You can specify the number of liters to use with the `--liters` argument (default: 5).
+- If it rained (positive variation of the container volume), then this script won't do watering. You can specify the threshold of detection of a rain (in liters) with the `--rain_volume` argument.
+- There is a limit duration of watering for security, you can modify it via the `--time_limit` argument.
+
+Type `python cron.py -h` to see all the options.
+
 
 
 ## Access the GPIO pins without root
