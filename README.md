@@ -183,7 +183,7 @@ When running this script on a Raspberry Pi:
 
 ### Standard computer
 
-TO run a demo of the web interface on a computer, type `python server.py`. As there is no GPIO pins, the behaviour is simulated. In particular:
+To run a demo of the web interface on a computer, type `python server.py`. As there is no GPIO pins, the behaviour is simulated. In particular:
 
 - The slider `Watering circuit n°1` button will move but does nothing concrete.
 - The `measure` button will provide random values.
