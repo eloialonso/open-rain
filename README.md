@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">Open Pluie</h1>
 
-Homemade irrigation system with a Raspberry Pi. Two modes:
+DIY irrigation system with a Raspberry Pi. Two modes:
 <ol>
    <li> On demand watering via a web interface.
    <li> Custom regular watering with a <a href="https://en.wikipedia.org/wiki/Cron">cron</a> job.
