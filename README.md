@@ -64,11 +64,11 @@ Then, setup a MySQL database for the openpluie web server:
 python mysql_setup.py
 ```
 
-It creates a MySQL user called `admin_openpluie`, a database called `openpluie`, containing a table `users` containing the `admin` user for the website.
+It creates a MySQL user called `admin_openpluie`, a database called `openpluie` with a table `users` containing the `admin` user for the website.
 
 ### Secret key for authentication
 
-The web server use a secret key for authentication and security. Create the text file `./config/cookie.secret`, and write a long random sequence of characters on the first line.
+The web server uses a secret key for authentication and security. Create the text file `./config/cookie.secret`, and write a long random sequence of characters on the first line.
 
 
 ## Irrigation system
