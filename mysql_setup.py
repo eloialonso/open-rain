@@ -4,9 +4,9 @@
 
 """Script to set up a mysql database.
 
-1) Create 'openpluie' MySQL database.
-2) Create 'admin_openpluie' MySQL user.
-3) Create 'users' table in 'openpluie' database.
+1) Create 'openrain' MySQL database.
+2) Create 'admin_openrain' MySQL user.
+3) Create 'users' table in 'openrain' database.
 4) Insert an admin user entry in the 'users' table.
 """
 
@@ -28,36 +28,36 @@ def main():
         )
     cursor = connection.cursor()
 
-    # 1) Create the database 'openpluie'
+    # 1) Create the database 'openrain'
     try:
-        print("\n[MySQL] Creating database 'openpluie'.")
-        cursor.execute("""CREATE DATABASE openpluie""")
+        print("\n[MySQL] Creating database 'openrain'.")
+        cursor.execute("""CREATE DATABASE openrain""")
     except mysql.connector.errors.DatabaseError:
-        overwrite = input("\t --> Database 'openpluie' already exists. Overwrite it? [y/N] ").lower() == "y"
+        overwrite = input("\t --> Database 'openrain' already exists. Overwrite it? [y/N] ").lower() == "y"
         if overwrite:
-            print("\t --> Overwriting database 'openpluie'.")
-            cursor.execute("""DROP DATABASE openpluie""")
-            cursor.execute("""CREATE DATABASE openpluie""")
+            print("\t --> Overwriting database 'openrain'.")
+            cursor.execute("""DROP DATABASE openrain""")
+            cursor.execute("""CREATE DATABASE openrain""")
         else:
             print("\nExiting.")
             return
 
-    # 2) Create the user 'admin_openpluie'
-    print("\n[MySQL] Creating user 'admin_openpluie'.")
-    sql_pwd = getpass("\t --> Define a password for 'admin_openpluie': ")
-    cursor.execute("""GRANT ALL PRIVILEGES ON *.* TO 'admin_openpluie'@'localhost' IDENTIFIED BY '{}'""".format(sql_pwd))
-    print("\t --> User 'admin_openpluie' successfully created.")
+    # 2) Create the user 'admin_openrain'
+    print("\n[MySQL] Creating user 'admin_openrain'.")
+    sql_pwd = getpass("\t --> Define a password for 'admin_openrain': ")
+    cursor.execute("""GRANT ALL PRIVILEGES ON *.* TO 'admin_openrain'@'localhost' IDENTIFIED BY '{}'""".format(sql_pwd))
+    print("\t --> User 'admin_openrain' successfully created.")
 
 
     # Close the connection of root
     cursor.close()
     connection.close()
 
-    # Log in with 'admin_openpluie' user
+    # Log in with 'admin_openrain' user
     connection = mysql.connector.connect(
         host="localhost",
-        database="openpluie",
-        user="admin_openpluie",
+        database="openrain",
+        user="admin_openrain",
         password=sql_pwd
         )
     cursor = connection.cursor()

@@ -1,7 +1,7 @@
 <p align="center">
    <img src="./static/images/logo.png" width="100" height="100" align="center">
 </p>
-<h1 align="center">Open Pluie</h1>
+<h1 align="center">Open Rain</h1>
 
 DIY irrigation system with a Raspberry Pi. Two modes:
 <ol>
@@ -12,7 +12,7 @@ DIY irrigation system with a Raspberry Pi. Two modes:
 
 &rarr; This project is supposed to be run on a Raspberry Pi. On a standard computer, you can still run a [demo](#standard-computer) of the web interface.
 
-**EDIT**: The system operated autonomously for two months in a dry and hot environment, and we were pleased to discover plenty of vegetables, which would have been wiped out in the scorching sun without Open Pluie!
+**EDIT**: The system operated autonomously for two months in a dry and hot environment, and we were pleased to discover plenty of vegetables, which would have been wiped out in the scorching sun without Open Rain!
 
 <p align="center">
    <img src="./static/images/2_months_later.jpg" width="750" align="center"/>
@@ -45,16 +45,16 @@ DIY irrigation system with a Raspberry Pi. Two modes:
 
 Clone the project in your current location, and navigate to it:
 ```bash
-git clone https://github.com/bloodymosquito/open-pluie.git
-cd open-pluie
+git clone https://github.com/bloodymosquito/open-rain.git
+cd open-rain
 ```
 
 This project use python3 with the libraries listed in [requirements.txt](./requirements.txt).
 
 For instance, you may create a python3 virtual environment with [virtualenv](https://pypi.org/project/virtualenv/):
 ```bash
-virtualenv -p python3 ~/.virtualenvs/openpluie
-source ~/.virtualenvs/openpluie/bin/activate
+virtualenv -p python3 ~/.virtualenvs/openrain
+source ~/.virtualenvs/openrain/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -65,12 +65,12 @@ pip install -r requirements.txt
 
 To run the web server, you need [MySQL](https://dev.mysql.com/doc/refman/8.0/en/installing.html). [Here](https://support.rackspace.com/how-to/installing-mysql-server-on-ubuntu/) is a tutorial to install it on Ubuntu.
 
-Then, setup a MySQL database for the openpluie web server:
+Then, setup a MySQL database for the openrain web server:
 ```bash
 python mysql_setup.py
 ```
 
-It creates a MySQL user called `admin_openpluie`, a database called `openpluie` with a table `users` containing the `admin` user for the website.
+It creates a MySQL user called `admin_openrain`, a database called `openrain` with a table `users` containing the `admin` user for the website.
 
 ### Secret key for authentication
 
@@ -131,7 +131,7 @@ To run the web interface, type:
 python server.py
 ```
 
-It will prompt for the password of the MySQL `admin_openpluie` user, that you defined when using the `mysql_setup.py` script in [MySQL server](#mysql-server) section.
+It will prompt for the password of the MySQL `admin_openrain` user, that you defined when using the `mysql_setup.py` script in [MySQL server](#mysql-server) section.
 
 In your browser, type `localhost:9080` to access the website.
 
@@ -182,7 +182,7 @@ With the five stars corresponding to:
 
 For instance, to do watering every night at 1 a.m., type:
 
-`0 1 * * * ~/.virtualenvs/openpluie/bin/python /path/to/openpluie/cron.py`
+`0 1 * * * ~/.virtualenvs/openrain/bin/python /path/to/openrain/cron.py`
 
 You can add optional arguments (described below) in this line too.
 

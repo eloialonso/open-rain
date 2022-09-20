@@ -8,7 +8,7 @@ WARNING: this script is supposed to be run on a Raspberry Pi.
 However, it is possible to run a demo on a computer.
 In this case, the behaviour is simulated, in the sense that there will be no real, hardware change such as pin writing/reading.
 
-WARNING: this script connects to a MySQL database ('openpluie') containing the users for the website.
+WARNING: this script connects to a MySQL database ('openrain') containing the users for the website.
 Make sure to run 'python mysql_setup.py' before the first time to create the database and properly initialize itss.
 """
 
@@ -92,9 +92,9 @@ def parse_args():
         help="Database host (default: %(default)s)."),
     db.add_argument("--sqlport", type=int, default=3306,
         help="Database port (default: %(default)d).")
-    db.add_argument("--sqldb", default="openpluie",
+    db.add_argument("--sqldb", default="openrain",
         help="Database name (default: %(default)s).")
-    db.add_argument("--sqluser", default="admin_openpluie",
+    db.add_argument("--sqluser", default="admin_openrain",
         help="Database user (default: %(default)s).")
 
     return parser.parse_args()
@@ -158,7 +158,7 @@ class Application(tornado.web.Application):
         ]
 
         settings = dict(
-            page_title="OpenPluie",
+            page_title="OpenRain",
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
             xsrf_cookies=True,
