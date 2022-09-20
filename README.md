@@ -10,9 +10,9 @@ DIY irrigation system with a Raspberry Pi. Two modes:
 </ol>
 
 
-**Remark**: This project is supposed to be run on a Raspberry Pi. On a standard computer, you can still run a [demo](#standard-computer) of the web interface.
+&rarr; This project is supposed to be run on a Raspberry Pi. On a standard computer, you can still run a [demo](#standard-computer) of the web interface.
 
-**EDIT**: After two months of testing in a dry and hot environment, we had the pleasure to discover a lot of vegetables, which would have been wiped out under the scorching sun without Open Pluie!
+**EDIT**: The system operated autonomously for two months in a dry and hot environment, and we were pleased to discover plenty of vegetables, which would have been wiped out in the scorching sun without Open Pluie!
 
 <p align="center">
    <img src="./static/images/2_months_later.jpg" width="750" align="center"/>
