@@ -1,4 +1,4 @@
 bcrypt==3.1.6
 mysql-connector-python-rf==2.2.2
-tornado==6.0.2
+tornado==6.3.2
 RPi.GPIO==0.6.5
